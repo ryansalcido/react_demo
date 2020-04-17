@@ -1,0 +1,19 @@
+.center {
+  text-align: center;
+}
+
+.textBoxField {
+  width: 400px;
+}
+
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
+}
+
+.cancelCreateDiv {
+  margin-top: 30px
+}
