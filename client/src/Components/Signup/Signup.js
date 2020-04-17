@@ -11,6 +11,9 @@ import ErrorIcon from "@material-ui/icons/Error";
 import { Link } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import "./Signup.css";
+import axios from "axios";
+
+import Password from "Components/Password/Password";
 
 class Signup extends Component {
   constructor(props) {
@@ -20,6 +23,8 @@ class Signup extends Component {
     this.validateEmail = this.validateEmail.bind(this);
     this.validateUsername = this.validateUsername.bind(this);
     this.handleIconClick = this.handleIconClick.bind(this);
+    this.createUser = this.createUser.bind(this);
+    this.getPassword = this.getPassword.bind(this);
   }
 
   updateState(event) {
@@ -28,12 +33,36 @@ class Signup extends Component {
   }
   
   validateEmail() {
-    this.setState((state) => 
+    this.setState((state) =>
       state.emailValid = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(this.state.email));
   }
 
   validateUsername() {
-    this.setState((state) => state.usernameValid = /^[A-Za-z0-9]+$/.test(this.state.username));
+    var normalize = this.state.username;
+    normalize = normalize.trim().toLowerCase();
+    axios.post("http://localhost:8443/api/checkUsername", {username: normalize})
+      .then(response => {
+        if(response.data.available === true) {
+          this.setState((state) => state.usernameValid = /^[A-Za-z0-9]+$/.test(normalize));
+        } else {
+          this.setState((state) => state.usernameValid = false);
+        }
+      })
+      .catch(error => {
+        console.log("ERROR checkusername: ", error);
+      });
+    // this.setState((state) => state.usernameValid = /^[A-Za-z0-9]+$/.test(normalize));
+  }
+
+  createUser() {
+    axios.post("http://localhost:8443/api/createUser", 
+      { username: this.state.username, email: this.state.email, password: this.state.password })
+        .then(response => {
+          console.log("SUCCESS creating user", response);
+        })
+        .catch(error => {
+          console.log("ERROR creating user: ", error);
+        });
   }
 
   handleIconClick(name) {
@@ -43,6 +72,10 @@ class Signup extends Component {
     } else if(name === "email") {
       this.setState((state) => state.emailValid = null);
     }
+  }
+
+  getPassword(password) {
+    this.setState({ password });
   }
 
   render() {
@@ -86,7 +119,7 @@ class Signup extends Component {
             }}
           />
         </Box>
-        <Box display="block" className="center" mt="20px">
+        {/* <Box display="block" className="center" mt="20px">
           <TextField className="textBoxField" value={this.state.password} onChange={this.updateState} 
             name="password" display="block" required label="Password" variant="outlined" 
             InputProps={{
@@ -94,13 +127,17 @@ class Signup extends Component {
                 <InputAdornment position="end">
                   { this.state.password !== "" ? <ClearIcon onClick={() => this.handleIconClick("password")}/> : "" }
                 </InputAdornment>
-              ),
+              )
             }}
           />
-        </Box>
+        </Box> */}
+
+        <Password required setPassword={this.getPassword}/>
+
         <Box className="cancelCreateDiv center" >
           <Button style={{marginRight: 60 }} variant="contained" color="secondary" startIcon={<CancelIcon />} component={Link} to={"/"}>Cancel</Button>
-          <Button variant="contained" color="primary" startIcon={<CreateIcon />} component={Link} to={"/"}>Create</Button>
+          <Button variant="contained" color="primary" startIcon={<CreateIcon />} component={Link} to={"/login"}
+            onClick={this.createUser}>Create</Button>
         </Box>
       </Fragment>
     )
