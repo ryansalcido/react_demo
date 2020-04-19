@@ -1,77 +1,101 @@
-import React, { Component, Fragment } from "react";
-import Header from "Components/Header/Header";
+import React, { Fragment, useState } from "react";
 import TextField from "@material-ui/core/TextField";
-import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
+import InputAdornment from "@material-ui/core/InputAdornment";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import Password from "Components/Password/Password";
-import "./Login.css";
+import Typography from '@material-ui/core/Typography';
+import Grid from "@material-ui/core/Grid";
+import { makeStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import ClearIcon from "@material-ui/icons/Clear";
+import Alert from '@material-ui/lab/Alert';
 import axios from "axios";
 
-class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { username: "", password: "" };
-    this.updateState = this.updateState.bind(this);
-    this.getPassword = this.getPassword.bind(this);
-    this.login = this.login.bind(this);
+const useStyles = makeStyles((theme) => ({
+  gridItem: {
+    paddingTop: 20
+  },
+  createAccountItem: {
+    paddingRight: 60
+  },
+  loginAlertError: {
+    width: 600
   }
+}));
 
-  updateState(event) {
-    event.persist();
-    this.setState((state) => state[event.target.name] = event.target.value);
-  }
+export default function Login(props) {
+  const classes = useStyles();
+  const [ username, setUsername ] = useState("");
+  const [ password, setPassword ] = useState("");
+  const [ viewLoginError, setViewLoginError ] = useState(false);
 
-  getPassword(password) {
-    this.setState({ password });
-  }
-
-  login() {
-    axios.post("http://localhost:8443/api/login", 
-    {username: this.state.username, password: this.state.password})
+  function login() {
+    axios.post("http://localhost:8443/api/login", { username, password })
       .then(response => {
         console.log("SUCCESS authenticating user: ", response);
-        // this.setState({success: response.data.success});
         if(response.data.success === true) {
-          this.props.history.push("/");
+          setViewLoginError(false);
+          props.history.push("/");
         } else {
-          this.setState({username: "", password: ""});
+          setUsername("");
+          setPassword("");
+          setViewLoginError(true);
         }
+        
       })
       .catch(error => {
         console.log("ERROR authenticating user: ", error);
-        // this.setState({success: false});
-        this.setState({username: "", password: ""});
+        setUsername("");
+        setPassword("");
+        setViewLoginError(true);
       });
   }
 
-  render() {
-    return (
-      <Fragment>
-        <Header />
-        <h1 className="center">Login</h1>
+  return (
+    <Fragment>
+      <Typography color="secondary" align="center" variant="h4">Login</Typography>
+      
+      <Grid container direction="column" alignItems="center">
+        <Grid item className={classes.gridItem}>
+          { viewLoginError 
+            ? <Alert className={classes.loginAlertError} severity="error" 
+                action={<ClearIcon onClick={() => setViewLoginError(false)} />}>
+                Invalid username or password
+              </Alert> 
+            : ""
+          }
+        </Grid>
+        <Grid item className={classes.gridItem}>
+          <TextField margin="normal" value={username} onChange={(event) => setUsername(event.target.value)} 
+            name="username" label="Username" variant="outlined" color="secondary"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setUsername("")}>
+                    {username !== "" ? <ClearIcon /> : "" }
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+        </Grid>
+        <Grid item className={classes.gridItem}>
+          <Password sendPassword={setPassword}/>
+        </Grid>
+      </Grid>
 
-        <Box display="block" className="center">
-          <TextField className="textBoxField" value={this.state.username} onChange={this.updateState} 
-            name="username" display="block" label="Username" variant="outlined" />
-        </Box>
-        {/* <Box display="block" className="center inputEntry" mt="20px">
-          <TextField className="textBoxField" value={this.state.email} name="email" display="block"
-            onChange={this.updateState} label="Password" variant="outlined" />
-        </Box> */}
-
-        <Password setPassword={this.getPassword}/>
-
-        <Box display="block" className="loginBtnsDiv center">
-          <Button color="primary" style={{marginRight: 60 }} component={Link} to={"/signup"}>Create account</Button>
-          <Button color="primary" variant="contained" startIcon={<ExitToAppIcon />} onClick={this.login}>
-            Login
+      <Grid container direction="row" alignItems="center" justify="center">
+        <Grid item className={`${classes.gridItem} ${classes.createAccountItem}`}>
+          <Button color="secondary" variant="contained" component={Link} to={"/register"}>register</Button>
+        </Grid>
+        <Grid item className={classes.gridItem}>
+          <Button color="primary" variant="contained" startIcon={<ExitToAppIcon />} onClick={() => login()}>
+            sign in
           </Button>
-        </Box>
-      </Fragment>
-    )
-  }
+        </Grid>
+      </Grid>
+    </Fragment>
+  )
 }
-
-export default Login;

@@ -1,13 +1,10 @@
 import React from "react";
-import "./App.css";
-import Header from "./Components/Header/Header";
+import Typography from '@material-ui/core/Typography';
 
 function App() {
   return (
     <div className="App">
-      <Header />
-      <h1 className="center">Ryans React Project</h1>
-      
+      <Typography color="secondary" align="center" variant="h4">Ryan's React Project</Typography>
     </div>
   );
 }
