@@ -1,13 +1,17 @@
 import React from "react";
 import Typography from '@material-ui/core/Typography';
-import Container from "@material-ui/core/Container";
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   footer: {
-    marginTop: "auto",
-    backgroundColor: "lightgray",
+    height: 30,
+    width: "100%",
+    clear: "both",
+    backgroundColor: theme.palette.primary.main
   },
+  footerText: {
+    lineHeight: "30px"
+  }
 }));
 
 export default function StickyFooter() {
@@ -15,9 +19,7 @@ export default function StickyFooter() {
 
   return (
     <footer className={classes.footer}>
-      <Container maxWidth="sm">
-        <Typography variant="body1">Ryan's React Project</Typography>
-      </Container>
+      <Typography variant="body1" classes={{body1: classes.footerText}}>Ryan's React Project</Typography>
     </footer>
   )
 }

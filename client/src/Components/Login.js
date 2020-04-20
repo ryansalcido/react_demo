@@ -4,13 +4,14 @@ import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import Password from "Components/Password/Password";
 import Typography from '@material-ui/core/Typography';
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from "@material-ui/icons/Clear";
 import Alert from '@material-ui/lab/Alert';
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
@@ -29,6 +30,7 @@ export default function Login(props) {
   const classes = useStyles();
   const [ username, setUsername ] = useState("");
   const [ password, setPassword ] = useState("");
+  const [ showPassword, setShowPassword ] = useState(false);
   const [ viewLoginError, setViewLoginError ] = useState(false);
 
   function login() {
@@ -46,7 +48,6 @@ export default function Login(props) {
         
       })
       .catch(error => {
-        console.log("ERROR authenticating user: ", error);
         setUsername("");
         setPassword("");
         setViewLoginError(true);
@@ -73,8 +74,8 @@ export default function Login(props) {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => setUsername("")}>
-                    {username !== "" ? <ClearIcon /> : "" }
+                  <IconButton edge="end" onClick={() => setUsername("")}>
+                    {username !== "" && <ClearIcon />}
                   </IconButton>
                 </InputAdornment>
               )
@@ -82,7 +83,22 @@ export default function Login(props) {
           />
         </Grid>
         <Grid item className={classes.gridItem}>
-          <Password sendPassword={setPassword}/>
+          <TextField color="secondary" value={password} label="Password" required
+            name="password" type={showPassword ? "text" : "password"} variant="outlined"
+            onChange={(event) => setPassword(event.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton edge="end" onClick={() => setPassword("")}>
+                      {password !== "" && <ClearIcon />}
+                  </IconButton>
+                  <IconButton edge="end" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
         </Grid>
       </Grid>
 
