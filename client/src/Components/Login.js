@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useContext } from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
@@ -12,7 +12,8 @@ import ClearIcon from "@material-ui/icons/Clear";
 import Alert from '@material-ui/lab/Alert';
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import axios from "axios";
+import AuthService from "../Services/authService";
+import { AuthContext } from "../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   gridItem: {
@@ -26,32 +27,36 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Login(props) {
+const Login = (props) => {
   const classes = useStyles();
   const [ username, setUsername ] = useState("");
   const [ password, setPassword ] = useState("");
   const [ showPassword, setShowPassword ] = useState(false);
-  const [ viewLoginError, setViewLoginError ] = useState(false);
+  const [ viewLoginError, setViewLoginError ] = useState({error: false, msg: false});
+  const authContext = useContext(AuthContext);
 
   function login() {
-    axios.post("http://localhost:8443/api/login", { username, password })
-      .then(response => {
-        console.log("SUCCESS authenticating user: ", response);
-        if(response.data.success === true) {
-          setViewLoginError(false);
-          props.history.push("/");
+    if(username === "" && password === "") {
+      setViewLoginError({error: true, msg: "Username and password are required fields"});
+    } else if(username === "") {
+      setViewLoginError({error: true, msg: "Username is a required field"});
+    } else if(password === "") {
+      setViewLoginError({error: true, msg: "Password is a required field"});
+    } else {
+      AuthService.login({username, password }).then(data => {
+        const { isAuthenticated, user } = data;
+        if(isAuthenticated) {
+          setViewLoginError({error: false, msg: ""});
+          authContext.setUser(user);
+          authContext.setIsAuthenticated(isAuthenticated);
+          props.history.push("/dashboard");
         } else {
           setUsername("");
           setPassword("");
-          setViewLoginError(true);
+          setViewLoginError({error: true, msg: "Invalid username or password"});
         }
-        
-      })
-      .catch(error => {
-        setUsername("");
-        setPassword("");
-        setViewLoginError(true);
       });
+    }
   }
 
   return (
@@ -60,12 +65,11 @@ export default function Login(props) {
       
       <Grid container direction="column" alignItems="center">
         <Grid item className={classes.gridItem}>
-          { viewLoginError 
-            ? <Alert className={classes.loginAlertError} severity="error" 
-                action={<ClearIcon onClick={() => setViewLoginError(false)} />}>
-                Invalid username or password
-              </Alert> 
-            : ""
+          { viewLoginError.error === true && 
+            <Alert className={classes.loginAlertError} severity="error" 
+              action={<ClearIcon onClick={() => setViewLoginError(false)} />}>
+              {viewLoginError.msg}
+            </Alert> 
           }
         </Grid>
         <Grid item className={classes.gridItem}>
@@ -115,3 +119,5 @@ export default function Login(props) {
     </Fragment>
   )
 }
+
+export default Login;
