@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function StickyFooter() {
+const Footer = () => {
   const classes = useStyles();
 
   return (
@@ -23,3 +23,5 @@ export default function StickyFooter() {
     </footer>
   )
 }
+
+export default Footer;

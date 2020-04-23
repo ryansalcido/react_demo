@@ -9,12 +9,12 @@ import Button from "@material-ui/core/Button";
 import Typography from '@material-ui/core/Typography';
 import Grid from "@material-ui/core/Grid";
 import IconButton from '@material-ui/core/IconButton';
-import axios from "axios";
 import { makeStyles } from '@material-ui/core/styles';
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
 import useDebounce from "./utils/useDebounce";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import AuthService from "../Services/authService";
 
 const useStyles = makeStyles((theme) => ({
   success: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Register(props) {
+const Register = (props) => {
   const classes = useStyles();
   const [ username, setUsername ] = useState("");
   const [ email, setEmail ] = useState("");
@@ -54,16 +54,13 @@ export default function Register(props) {
       if(!/^[A-Za-z0-9]+$/.test(normalized)) {
         setUsernameError({error: true, msg: "Username may only contain alphanumeric characters"});
       } else {
-        axios.post("http://localhost:8443/api/checkUsername", {username: normalized})
-        .then(response => {
-          if(response.data.available === true) {
-            setUsernameError({error: false, msg: ""});
-          } else {
+        AuthService.checkUsername({username: normalized}).then(data => {
+          const { message } = data;
+          if(message.msgError === true) {
             setUsernameError({error: true, msg: "Username is already taken"});
+          } else {
+            setUsernameError({error: false, msg: ""});
           }
-        })
-        .catch(error => {
-          setUsernameError({error: true, msg: "Username is already taken"});
         });
       }
     }
@@ -98,14 +95,13 @@ export default function Register(props) {
         setPasswordError({error: true, msg: "Password is a required field"});
       }
     } else {
-      axios.post("http://localhost:8443/api/createUser", { username, email, password })
-        .then(response => {
-          console.log("SUCCESS creating user", response);
+      AuthService.register({ username, email, password }).then(data => {
+        const { message } = data;
+        if(!message.msgError) {
+          console.log("SUCCESS creating user", message);
           props.history.push("/login");
-        })
-        .catch(error => {
-          console.log("ERROR creating user: ", error);
-        });
+        }
+      });
     }
   }
 
@@ -186,3 +182,5 @@ export default function Register(props) {
     </Fragment>
   )
 }
+
+export default Register;

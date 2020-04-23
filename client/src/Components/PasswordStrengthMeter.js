@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function PasswordStrengthMeter(props) {
+const PasswordStrengthMeter = (props) => {
   const classes = useStyles();
   const [ passwordStrength, setPasswordStrength ] = useState({score: 0, label: "Weak"});
   const { password } = props;
@@ -63,3 +63,5 @@ export default function PasswordStrengthMeter(props) {
     </Fragment>
   )
 }
+
+export default PasswordStrengthMeter;

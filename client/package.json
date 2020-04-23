@@ -19,7 +19,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build  && move ./build ../server/build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -41,5 +41,6 @@
   "devDependencies": {
     "@babel/preset-react": "^7.9.4",
     "eslint": "^6.8.0"
-  }
+  },
+  "proxy": "http://localhost:5000"
 }
