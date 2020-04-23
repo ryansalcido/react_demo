@@ -1,5 +1,4 @@
-
-{
+module.exports = {
   "parserOptions": {
       "ecmaVersion": 2017
   },
@@ -8,6 +7,8 @@
   },
   "rules": {
     "semi": ["error", "always"],
-    "quotes": ["error", "double"]
+    "quotes": ["error", "double"],
+    "indent": ["error", "tab"],
+    "eol-last": ["error", "never"]
   }
 }
