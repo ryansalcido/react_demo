@@ -21,10 +21,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build  && move ./build ../server/build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "eject": "react-scripts eject",
+    "lint": "./node_modules/.bin/eslint . --fix"
   },
   "browserslist": {
     "production": [
@@ -40,7 +38,8 @@
   },
   "devDependencies": {
     "@babel/preset-react": "^7.9.4",
-    "eslint": "^6.8.0"
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.19.0"
   },
   "proxy": "http://localhost:5000"
 }
