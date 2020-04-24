@@ -98,7 +98,7 @@ const Header = (props) => {
 							icon={<WbSunnyOutlinedIcon style={{ color: "yellow" }} />} 
 							checkedIcon={<Brightness3OutlinedIcon />}
 						/>
-						{isAuthenticated 
+						{isAuthenticated
 							? <Button component={Link} to={"/"} onClick={onClickLogoutHandler}>logout</Button>
 							: <Fragment>
 								<Button component={Link} to={"/register"}>register</Button>

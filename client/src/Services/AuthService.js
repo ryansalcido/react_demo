@@ -35,10 +35,10 @@ export default {
 				}
 			});
 	},
-	checkUsername: (username) => {
-		return fetch("/user/checkUsername", {
+	validateEmail: (email) => {
+		return fetch("/user/validateEmail", {
 			method: "post",
-			body: JSON.stringify(username),
+			body: JSON.stringify(email),
 			headers: { "Content-Type": "application/json" }
 		}).then(res => res.json())
 			.then(data => data);
