@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
-	username: {
+	name: {
 		type: String,
 		required: true
 	},
@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", function(next) {
+	if(this.isModified("name")) {
+		this.name = this.name.trim();
+	}
+	if(this.isModified("email")) {
+		this.password = this.password.trim().toLowerCase();
+	}
 	if(!this.isModified("password")) {
 		return next();
 	} else {

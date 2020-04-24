@@ -29,9 +29,10 @@ passport.use(new JwtStrategy({
 	});
 }));
 
-//authentication using username and password
-passport.use(new LocalStrategy((username, password, done) => {
-	User.findOne({ username }, (err, user) => {
+//authentication using email and password
+passport.use(new LocalStrategy({usernameField: "email", passwordField: "password"}, (email, password, done) => {
+	const normalizedEmail = email.trim().toLowerCase();
+	User.findOne({ email: normalizedEmail }, (err, user) => {
 		if(err) {
 			return done(err);
 		}

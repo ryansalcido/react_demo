@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import TextField from "@material-ui/core/TextField";
 import CancelIcon from "@material-ui/icons/Cancel";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -15,6 +15,7 @@ import useDebounce from "../utils/useDebounce";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import AuthService from "../Services/AuthService";
+import Message from "./Message";
 import PropTypes from "prop-types";
 
 const useStyles = makeStyles((theme) => ({
@@ -37,70 +38,70 @@ const useStyles = makeStyles((theme) => ({
 
 const Register = (props) => {
 	const classes = useStyles();
-	const [ username, setUsername ] = useState("");
+	const [ name, setName ] = useState("");
+	const [ nameError, setNameError ] = useState({msgBody: "", msgError: false});
 	const [ email, setEmail ] = useState("");
+	const [ emailError, setEmailError ] = useState({msgBody: "", msgError: false});
 	const [ password, setPassword ] = useState("");
 	const [ showPassword, setShowPassword ] = useState(false);
-	const [ usernameError, setUsernameError ] = useState({error: false, msg: ""});
-	const [ emailError, setEmailError ]= useState({error: false, msg: ""});
-	const [ passwordError, setPasswordError ] = useState({error: false, msg: ""});
+	const [ passwordError, setPasswordError ] = useState({msgBody: "", msgError: false});
+	const [ message, setMessage ] = useState({msgBody: "", msgError: false});
+	let timerID = useRef(null);
 
-	const debouncedUsername = useDebounce(username, 500);
+	useEffect(() => {
+		return () => {
+			clearTimeout(timerID);
+		};
+	}, []);
+
 	const debouncedEmail = useDebounce(email, 500);
 	const debouncedPassword = useDebounce(password, 500);
 
 	useEffect(() => {
-		if(debouncedUsername) {
-			var normalized = debouncedUsername.trim();
-			if(!/^[A-Za-z0-9]+$/.test(normalized)) {
-				setUsernameError({error: true, msg: "Username may only contain alphanumeric characters"});
-			} else {
-				AuthService.checkUsername({username: normalized}).then(data => {
+		if(debouncedEmail) {
+			const normalizedEmail = debouncedEmail.trim().toLowerCase();
+			if(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(normalizedEmail)) {
+				AuthService.validateEmail({email: debouncedEmail}).then(data => {
 					const { message } = data;
 					if(message.msgError === true) {
-						setUsernameError({error: true, msg: "Username is already taken"});
+						setEmailError(message);
 					} else {
-						setUsernameError({error: false, msg: ""});
+						setEmailError({msgBody: "", msgError: false});
 					}
 				});
+			} else {
+				setEmailError({msgBody: "Invalid email address format", msgError: true});
 			}
-		}
-	}, [debouncedUsername]);
-
-	useEffect(() => {
-		if(debouncedEmail) {
-			setEmailError(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(debouncedEmail)
-				? {error: false, msg: ""} : {error: true, msg: "Please provide a valid email address"});
 		}
 	}, [debouncedEmail]);
 
 	useEffect(() => {
 		if(debouncedPassword) {
 			if(debouncedPassword.length < 8) {
-				setPasswordError({error: true, msg: "Password must be at least 8 characters"});
-			} else {
-				setPasswordError({error: false, msg: ""});
+				setPasswordError({msgBody: "Password must be at least 8 characters", msgError: true});
 			}
 		}
 	}, [debouncedPassword]);
 
 	function createUser() {
-		if(username === "" || email === "" || password === "") {
-			if(username === "") {
-				setUsernameError({error: true, msg: "Username is a required field"});
+		if(name === "" || email === "" || password === "") {
+			if(name === "") {
+				setNameError({msgBody: "This is a required field", msgError: true});
 			}
 			if(email === "") {
-				setEmailError({error: true, msg: "Email is a required field"});
+				setEmailError({msgBody: "This is a required field", msgError: true});
 			}
 			if(password === "") {
-				setPasswordError({error: true, msg: "Password is a required field"});
+				setPasswordError({msgBody: "This is a required field", msgError: true});
 			}
-		} else {
-			AuthService.register({ username, email, password }).then(data => {
+		} else if(nameError.msgError === false && emailError.msgError === false && passwordError.msgError === false) {
+			AuthService.register({ name, email, password }).then(data => {
 				const { message } = data;
+				setMessage(message);
 				if(!message.msgError) {
-					console.log("SUCCESS creating user", message);
-					props.history.push("/login");
+					timerID = setTimeout(() => {
+						props.history.push("/login");
+					}, 2000);
 				}
 			});
 		}
@@ -109,17 +110,22 @@ const Register = (props) => {
 	return (
 		<Fragment>
 			<Typography color="secondary" align="center" variant="h4">Signup</Typography>
-			{usernameError.error}
+
 			<Grid container direction="column" alignItems="center">
 				<Grid item className={classes.gridItem}>
-					<TextField color="secondary" value={username} name="username" required label="Username"
-						variant="outlined" inputProps={{maxLength: 25}} onChange={(event) => setUsername(event.target.value)}
-						error={usernameError.error} helperText={usernameError.msg}
+					<Message message={message} setMessage={setMessage} />
+				</Grid>
+				<Grid item className={classes.gridItem}>
+					<TextField color="secondary" value={name} name="name" required label="Name"
+						variant="outlined" inputProps={{maxLength: 38}} 
+						onChange={(event) => {setName(event.target.value);setNameError({msgBody: "", msgError: false});}}
+						error={nameError.msgError} helperText={nameError.msgBody}
 						InputProps={{
 							endAdornment: (
 								<InputAdornment position="end">
-									<IconButton edge="end" onClick={() => {setUsername(""); setUsernameError({error: false, msg: ""});}}>
-										{username !== "" && <ClearIcon />}
+									<IconButton edge="end"
+										onClick={() => {setName(""); setNameError({msgBody: "This is a required field", msgError: true});}}>
+										{name !== "" && <ClearIcon />}
 									</IconButton>
 								</InputAdornment>
 							)
@@ -128,13 +134,15 @@ const Register = (props) => {
 				</Grid>
 
 				<Grid item className={classes.gridItem}>
-					<TextField value={email} color="secondary" name="email" required label="Email"
-						variant="outlined" onChange={(event) => setEmail(event.target.value)}
-						error={emailError.error} helperText={emailError.msg}
+					<TextField value={email} color="secondary" name="email" 
+						variant="outlined" required label="Email"
+						onChange={(event) => setEmail(event.target.value)}
+						error={emailError.msgError} helperText={emailError.msgBody}
 						InputProps={{
 							endAdornment: (
 								<InputAdornment position="end">
-									<IconButton edge="end" onClick={() => {setEmail(""); setEmailError({error: false, msg: ""});}}>
+									<IconButton edge="end" 
+										onClick={() => {setEmail(""); setEmailError({msgBody: "This is a required field", msgError: true});}}>
 										{email !== "" && <ClearIcon />}
 									</IconButton>
 								</InputAdornment>
@@ -142,15 +150,17 @@ const Register = (props) => {
 						}}
 					/>
 				</Grid>
+
 				<Grid item className={classes.gridItem}>
 					<TextField color="secondary" value={password} label="Password" required
 						name="password" type={showPassword ? "text" : "password"} variant="outlined"
-						onChange={(event) => setPassword(event.target.value)}
-						error={passwordError.error} helperText={passwordError.msg}
+						onChange={(event) => {setPassword(event.target.value); setPasswordError({msgBody: "", msgError: false});}}
+						error={passwordError.msgError} helperText={passwordError.msgBody}
 						InputProps={{
 							endAdornment: (
 								<InputAdornment position="end">
-									<IconButton edge="end" onClick={() => {setPassword(""); setPasswordError({error: false, msg: ""});}}>
+									<IconButton edge="end" 
+										onClick={() => {setPassword(""); setPasswordError({msgBody: "This is a required field", msgError: true});}}>
 										{password !== "" && <ClearIcon />}
 									</IconButton>
 									<IconButton edge="end" onClick={() => setShowPassword(!showPassword)}>
