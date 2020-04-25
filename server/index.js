@@ -11,6 +11,7 @@ const port = 5000;
 
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useUnifiedTopology", true);
+mongoose.set("useFindAndModify", false);
 
 mongoose.connect(process.env.DATABASE_URL);
 const db = mongoose.connection;

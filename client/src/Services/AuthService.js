@@ -8,7 +8,7 @@ export default {
 			if(res.status !== 401) {
 				return res.json().then(data => data);
 			} else {
-				return {isAuthenticated: false, user: {username: ""}};
+				return {isAuthenticated: false, user: {name: "", email: ""}};
 			}
 		});
 	},
@@ -31,7 +31,7 @@ export default {
 				if(res.status !== 401) {
 					return res.json().then(data => data);
 				} else {
-					return {isAuthenticated: false, user: {username: ""}};
+					return {isAuthenticated: false, user: {name: "", email: ""}};
 				}
 			});
 	},

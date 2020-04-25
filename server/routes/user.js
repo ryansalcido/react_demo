@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const userRouter = express.Router();
 const User = require("../models/User");
+const Todo = require("../models/Todo");
 const passport = require("passport");
 const passportConfig = require("../config/passport");
 const JWT = require("jsonwebtoken");
@@ -81,5 +82,57 @@ userRouter.get("/authenticated", passport.authenticate("jwt", {session: false}),
 	const { name, email } = req.user;
 	res.status(200).json({isAuthenticated: true, user: {name, email}});
 });
+
+userRouter.post("/todo", passport.authenticate("jwt", {session: false}), (req, res) => {
+	const todo = new Todo(req.body);
+	todo.save(err => {
+		if(err) {
+			res.status(500).json({message: {msgBody: "Error has occurred while searching database", msgError: true}});
+		} else {
+			req.user.todos.push(todo);
+			req.user.save(err => {
+				if(err) {
+					res.status(500).json({message : {msgBody : "Error has occurred while creating todo", msgError: true}});
+				} else {
+					res.status(201).json({isAuthenticated : true, message : {msgBody : "Successfully created todo", msgError: false}});
+				}
+			});
+		}
+	});
+});
+
+userRouter.get("/todos", passport.authenticate("jwt", {session: false}), (req, res) => {
+	User.findOne({_id: req.user._id}).populate("todos").exec((err, document) => {
+		if(err) {
+			res.status(500).json({message : {msgBody : "Error has occurred while retreiving todos", msgError: true}});
+		} else {
+			res.status(200).json({todos : document.todos, isAuthenticated : true, message: {msgBody : "Successfully retreived todos", msgError: false}});
+		}
+	});
+});
+
+userRouter.post("/deleteTodo", passport.authenticate("jwt", {session: false}), (req, res) => {
+	const { _id } = req.body;
+	Todo.findOneAndDelete({_id}, (err, todo) => {
+		if(err) {
+			res.status(500).json({message: {msgBody: "Error has occurred while removing todo", msgError: true}});
+		} else {
+			res.status(200).json({isAuthenticated : true, message: {msgBody: "Successfully deleted todo", msgError: false}});
+		}
+	});
+});
+
+userRouter.post("/updateTodo", passport.authenticate("jwt", {session: false}), (req, res) => {
+	const { _id, name } = req.body;
+	Todo.findOneAndUpdate({_id}, {name}, (err, todo) => {
+		if(err) {
+			res.status(500).json({message: {msgBody: "Error has occurred while updating todo", msgError: true}});
+		} else {
+			res.status(200).json({isAuthenticated : true, message: {msgBody: "Successfully updated todo", msgError: false}});
+		}
+	});
+});
+
+
 
 module.exports = userRouter;
