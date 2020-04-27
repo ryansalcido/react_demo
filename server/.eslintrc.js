@@ -9,6 +9,7 @@ module.exports = {
     "semi": ["error", "always"],
     "quotes": ["error", "double"],
     "indent": ["error", "tab"],
-    "eol-last": ["error", "never"]
+		"eol-last": ["error", "never"],
+		"comma-dangle": ["error", "never"]
   }
 }

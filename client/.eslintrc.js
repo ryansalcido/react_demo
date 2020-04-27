@@ -28,6 +28,7 @@ module.exports = {
 		"quotes": [ "error", "double" ],
 		"semi": [ "error", "always"	],
 		"indent": ["error", "tab"],
-		"eol-last": ["error", "never"]
+		"eol-last": ["error", "never"],
+		"comma-dangle": ["error", "never"]
 	}
 };

@@ -21,8 +21,11 @@ db.once("open", () => console.log("Connected to database"));
 
 app.use(express.json());
 
-// app.use(express.static(path.join(__dirname, "build")));
 app.use("/user", userRouter);
 app.use("/weather", weatherRouter);
+
+const publicPath = path.join(__dirname, "build");
+app.use(express.static(publicPath));
+app.use("*", express.static(publicPath));
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

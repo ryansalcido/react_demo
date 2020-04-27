@@ -23,14 +23,14 @@ const ThemeSwitch = withStyles((theme) => ({
 		width: 42,
 		height: 26,
 		padding: 0,
-		margin: "6px 8px",
+		margin: "6px 8px"
 	},
 	switchBase: {
 		padding: 1,
 		"& + $track": {
 			backgroundColor: "lightskyblue",
 			opacity: 1,
-			border: "none",
+			border: "none"
 		},
 		"&$checked": {
 			transform: "translateX(16px)",
@@ -38,27 +38,27 @@ const ThemeSwitch = withStyles((theme) => ({
 			"& + $track": {
 				backgroundColor: "darkslategrey",
 				opacity: 1,
-				border: "none",
-			},
+				border: "none"
+			}
 		},
 		"&$focusVisible $thumb": {
 			color: "#52d869",
-			border: "6px solid #fff",
-		},
+			border: "6px solid #fff"
+		}
 	},
 	thumb: {
 		width: 24,
-		height: 24,
+		height: 24
 	},
 	track: {
 		borderRadius: 13,
 		border: `1px solid ${theme.palette.grey[400]}`,
 		backgroundColor: theme.palette.grey[50],
 		opacity: 1,
-		transition: theme.transitions.create(["background-color", "border"]),
+		transition: theme.transitions.create(["background-color", "border"])
 	},
 	checked: {},
-	focusVisible: {},
+	focusVisible: {}
 }))(({ classes, ...props }) => {
 	return (
 		<Switch
@@ -69,7 +69,7 @@ const ThemeSwitch = withStyles((theme) => ({
 				switchBase: classes.switchBase,
 				thumb: classes.thumb,
 				track: classes.track,
-				checked: classes.checked,
+				checked: classes.checked
 			}}
 			{...props}
 		/>
@@ -78,8 +78,9 @@ const ThemeSwitch = withStyles((theme) => ({
 
 const Header = (props) => {
 	const classes = useStyles();
-	const { user, setUser, isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+	const { setUser, isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
 	const { themeType, toggleDarkTheme } = props;
+
 	const onClickLogoutHandler = () => {
 		AuthService.logout().then(data => {
 			if(data.success) {
@@ -87,6 +88,24 @@ const Header = (props) => {
 				setIsAuthenticated(false);
 			}
 		});
+	};
+
+	const unauthenticatedHeader = () => {
+		return (
+			<Fragment>
+				<Button component={Link} to={"/register"}>register</Button>
+				<Button component={Link} to={"/login"}>log in</Button>
+			</Fragment>
+		);
+	};
+
+	const authenticatedHeader = () => {
+		return (
+			<Fragment>
+				<Button component={Link} to={"/dashboard"}>Dashboard</Button>
+				<Button onClick={onClickLogoutHandler}>logout</Button>
+			</Fragment>
+		);
 	};
 
 	return (
@@ -98,13 +117,8 @@ const Header = (props) => {
 							icon={<WbSunnyOutlinedIcon style={{ color: "yellow" }} />} 
 							checkedIcon={<Brightness3OutlinedIcon />}
 						/>
-						{isAuthenticated
-							? <Button component={Link} to={"/"} onClick={onClickLogoutHandler}>logout</Button>
-							: <Fragment>
-								<Button component={Link} to={"/register"}>register</Button>
-								<Button component={Link} to={"/login"}>sign in</Button>
-							</Fragment>
-						}
+						<Button component={Link} to={"/"}>home</Button>
+						{isAuthenticated ? authenticatedHeader() : unauthenticatedHeader()}
 					</Grid>
 				</Toolbar>
 			</AppBar>

@@ -113,7 +113,7 @@ const Register = (props) => {
 
 			<Grid container direction="column" alignItems="center">
 				<Grid item className={classes.gridItem}>
-					<Message message={message} setMessage={setMessage} />
+					<Message width="600px" message={message} setMessage={setMessage} />
 				</Grid>
 				<Grid item className={classes.gridItem}>
 					<TextField color="secondary" value={name} name="name" required label="Name"
