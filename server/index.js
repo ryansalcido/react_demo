@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const userRouter = require("./routes/user");
+const weatherRouter = require("./routes/weather");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
@@ -22,5 +23,6 @@ app.use(express.json());
 
 // app.use(express.static(path.join(__dirname, "build")));
 app.use("/user", userRouter);
+app.use("/weather", weatherRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

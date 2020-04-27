@@ -62,7 +62,7 @@ const Login = (props) => {
 			<Typography color="secondary" align="center" variant="h4">Login</Typography>
 			<Grid container direction="column" alignItems="center">
 				<Grid item className={classes.gridItem}>
-					<Message message={message} setMessage={setMessage} />
+					<Message width="600px" message={message} setMessage={setMessage} />
 				</Grid>
 				<Grid item className={classes.gridItem}>
 					<TextField margin="normal" value={email} onChange={(event) => setEmail(event.target.value)} 
