@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 	todoList: {
 		marginTop: theme.spacing(3),
 		padding: "2px 4px",
-		maxHeight: 250,
+		maxHeight: 350,
 		overflowY: "auto"
 	},
 	input: {

@@ -12,7 +12,7 @@ const themeObject = {
 		},
 		MuiTextField: {
 			root: {
-				width: 400
+				width: "30%"
 			}
 		},
 		MuiButton: {

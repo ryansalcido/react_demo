@@ -1,14 +1,9 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body, #root {
-  min-height: 100vh;
+html {
+	height: 100%;
 }
 
 body {
+	min-height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -16,11 +11,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  position: relative;
-}
-
-.app {
-  padding-bottom: 30px;
-  min-height: calc(100vh - 30px - 40px);
+#root {
+	min-height: 100vh;
 }

@@ -26,13 +26,23 @@ const useStyles = makeStyles((theme) => ({
 		color: "red"
 	},
 	gridItem: {
+		paddingTop: 20,
+		width: "100%",
+		textAlign: "center"
+	},
+	messageItem: {
+		display: "flex",
+		justifyContent: "center"
+	},
+	registerBtnsItem: {
 		paddingTop: 20
 	},
 	cancelItem: {
 		paddingRight: 60
 	},
 	passwordStrengthItem: {
-		paddingTop: 10
+		paddingTop: 10,
+		width: "30%"
 	}
 }));
 
@@ -109,11 +119,11 @@ const Register = (props) => {
 
 	return (
 		<Fragment>
-			<Typography color="secondary" align="center" variant="h4">Signup</Typography>
+			<Typography color="secondary" align="center" variant="h4">Register</Typography>
 
-			<Grid container direction="column" alignItems="center">
-				<Grid item className={classes.gridItem}>
-					<Message width="600px" message={message} setMessage={setMessage} />
+			<Grid container direction="column" alignItems="center" justify="center">
+				<Grid item className={`${classes.gridItem} ${classes.messageItem}`}>
+					<Message width="45%" message={message} setMessage={setMessage} />
 				</Grid>
 				<Grid item className={classes.gridItem}>
 					<TextField color="secondary" value={name} name="name" required label="Name"
@@ -177,13 +187,13 @@ const Register = (props) => {
 			</Grid>
 
 			<Grid container direction="row" alignItems="center" justify="center">
-				<Grid item className={`${classes.gridItem} ${classes.cancelItem}`}>
+				<Grid item className={`${classes.registerBtnsItem} ${classes.cancelItem}`}>
 					<Button variant="contained" color="secondary" 
 						startIcon={<CancelIcon />} component={Link} to={"/"}>
             cancel
 					</Button>
 				</Grid>
-				<Grid item className={classes.gridItem}>
+				<Grid item className={classes.registerBtnsItem}>
 					<Button variant="contained" color="primary" startIcon={<CreateIcon />}
 						onClick={() => createUser()}>
             create

@@ -10,6 +10,7 @@ import Dashboard from "./Components/Dashboard";
 import PrivateRoute from "./hocs/PrivateRoute";
 import UnPrivateRoute from "./hocs/UnPrivateRoute";
 import themeObject from "./theme";
+import Footer from "./Components/Footer";
 
 const useDarkTheme = () => {
 	if(localStorage.getItem("type")) {
@@ -40,10 +41,13 @@ function App() {
 			<CssBaseline />
 			<Router>
 				<Header themeType={themeConfig.palette.type} toggleDarkTheme={toggleDarkTheme} />
-				<Route exact path="/" component={Home} />
-				<UnPrivateRoute path="/login" component={Login} />
-				<UnPrivateRoute path="/register" component={Register} />
-				<PrivateRoute path="/dashboard" component={Dashboard} />
+				<div style={{minHeight: "calc(100vh - 75px)", paddingBottom: 40}}>
+					<Route exact path="/" component={Home} />
+					<UnPrivateRoute path="/login" component={Login} />
+					<UnPrivateRoute path="/register" component={Register} />
+					<PrivateRoute path="/dashboard" component={Dashboard} />
+				</div>
+				<Footer />
 			</Router>
 		</ThemeProvider>
 	);
