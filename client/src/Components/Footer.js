@@ -6,11 +6,18 @@ const useStyles = makeStyles((theme) => ({
 	footer: {
 		height: 30,
 		width: "100%",
-		clear: "both",
+		bottom: 0,
+		position: "absolute",
 		backgroundColor: theme.palette.primary.main
 	},
+	footerMain: {
+		display: "flex",
+		color: "black",
+		justifyContent: "space-evenly",
+		height: 30
+	},
 	footerText: {
-		lineHeight: "30px"
+		padding: 3
 	}
 }));
 
@@ -19,7 +26,10 @@ const Footer = () => {
 
 	return (
 		<footer className={classes.footer}>
-			<Typography variant="body1" classes={{body1: classes.footerText}}>{"Ryan's React Project"}</Typography>
+			<div className={classes.footerMain}>
+				<Typography variant="body1" className={classes.footerText}>{"Ryan's React Project"}</Typography>
+				<Typography variant="body1" className={classes.footerText}>Created: April 2020</Typography>
+			</div>
 		</footer>
 	);
 };

@@ -18,6 +18,15 @@ import Message from "./Message";
 
 const useStyles = makeStyles((theme) => ({
 	gridItem: {
+		paddingTop: 20,
+		width: "100%",
+		textAlign: "center"
+	},
+	messageItem: {
+		display: "flex",
+		justifyContent: "center"
+	},
+	loginBtnsItem: {
 		paddingTop: 20
 	},
 	createAccountItem: {
@@ -60,9 +69,9 @@ const Login = (props) => {
 	return (
 		<Fragment>
 			<Typography color="secondary" align="center" variant="h4">Login</Typography>
-			<Grid container direction="column" alignItems="center">
-				<Grid item className={classes.gridItem}>
-					<Message width="600px" message={message} setMessage={setMessage} />
+			<Grid container direction="column" alignItems="center" justify="center">
+				<Grid item className={`${classes.gridItem} ${classes.messageItem}`}>
+					<Message width="45%" message={message} setMessage={setMessage} />
 				</Grid>
 				<Grid item className={classes.gridItem}>
 					<TextField margin="normal" value={email} onChange={(event) => setEmail(event.target.value)} 
@@ -99,10 +108,10 @@ const Login = (props) => {
 			</Grid>
 
 			<Grid container direction="row" alignItems="center" justify="center">
-				<Grid item className={`${classes.gridItem} ${classes.createAccountItem}`}>
+				<Grid item className={`${classes.loginBtnsItem} ${classes.createAccountItem}`}>
 					<Button color="secondary" variant="contained" component={Link} to={"/register"}>register</Button>
 				</Grid>
-				<Grid item className={classes.gridItem}>
+				<Grid item className={classes.loginBtnsItem}>
 					<Button color="primary" variant="contained" startIcon={<ExitToAppIcon />} onClick={() => login()}>
             sign in
 					</Button>

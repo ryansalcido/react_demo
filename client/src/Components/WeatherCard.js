@@ -21,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: theme.spacing(3)
 	},
 	weatherBtnRoot: {
+		width: "100%",
 		"&:hover" : {
 			backgroundColor: "unset"
 		}

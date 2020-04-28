@@ -9,8 +9,7 @@ const useStyles = makeStyles((theme) => ({
 	passwordStrengthProgress: {
 		backgroundColor: "lightgray",
 		height: 12,
-		borderRadius: 4,
-		width: 400
+		borderRadius: 4
 	},
 	strengthWeak: {
 		backgroundColor: "#F25F5C"
