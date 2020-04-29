@@ -22,7 +22,7 @@ userSchema.pre("save", function(next) {
 		this.name = this.name.trim();
 	}
 	if(this.isModified("email")) {
-		this.password = this.password.trim().toLowerCase();
+		this.email = this.email.trim().toLowerCase();
 	}
 	if(!this.isModified("password")) {
 		return next();
