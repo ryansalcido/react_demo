@@ -13,6 +13,7 @@
     "axios": "^0.19.2",
     "moment": "^2.24.0",
     "react": "^16.13.1",
+    "react-app-polyfill": "^1.0.6",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
@@ -27,14 +28,18 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "chrome > 70",
+      "firefox > 52",
+      "last 1 safari version",
+      "ie 11",
+      "edge > 16"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      "chrome > 70",
+      "firefox > 52",
+      "last 1 safari version",
+      "ie 11",
+      "edge > 16"
     ]
   },
   "devDependencies": {

@@ -32,10 +32,10 @@ const useStyles = makeStyles((theme) => ({
 	},
 	tempToggleGroup: {
 		paddingLeft: 2,
-		minWidth: 99
+		minWidth: 102
 	},
 	tempToggleBtn: {
-		width: 33
+		width: 34
 	},
 	tempValue: {
 		width: 58,

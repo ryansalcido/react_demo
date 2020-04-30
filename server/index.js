@@ -6,6 +6,8 @@ const userRouter = require("./routes/user");
 const weatherRouter = require("./routes/weather");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+
+app.disable("x-powered-by");
 app.use(cookieParser());
 
 const port = 5000;

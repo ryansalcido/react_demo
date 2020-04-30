@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 		flex: 1
 	},
 	locationRoot: {
-		width: "35%",
+		width: "50%",
 		padding: "2px 4px",
 		display: "flex",
 		alignItems: "center"
@@ -79,7 +79,7 @@ const Weather = () => {
 				const dailyWeather = {
 					location,
 					city: weatherForecast.city,
-					list: weatherForecast.list.filter(reading => reading.dt_txt.includes("18:00:00"))
+					list: weatherForecast.list.filter(reading => reading.dt_txt.indexOf("18:00:00") !== -1)
 				};
 				localStorage.setItem("weather", JSON.stringify(dailyWeather));
 				setForecast(dailyWeather);

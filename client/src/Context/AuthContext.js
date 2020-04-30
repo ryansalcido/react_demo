@@ -2,11 +2,20 @@ import React, { createContext, useState, useEffect } from "react";
 import AuthService from "../Services/AuthService";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		minHeight: "100vh",
 		position: "relative"
+	},
+	loadingBackground: {
+		minHeight: "inherit",
+		backgroundColor: theme.palette.grey.A100,
+		padding: 0,
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center"
 	}
 }));
 
@@ -29,8 +38,10 @@ const AuthProvider = ({ children }) => {
 
 	return (
 		<div className={classes.root}>
-			{!isLoaded
-				? <h1>Loading</h1>
+			{!isLoaded 
+				? <div className={classes.loadingBackground}>
+					<CircularProgress color="secondary" />
+				</div>
 				: <AuthContext.Provider value={{user, setUser, isAuthenticated, setIsAuthenticated}}>
 					{ children }
 				</AuthContext.Provider>
