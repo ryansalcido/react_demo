@@ -15,6 +15,9 @@ const useStyles = makeStyles((theme) => ({
 		"&:hover": {
 			backgroundColor: theme.palette.error.dark
 		}
+	},
+	textFieldRoot: {
+		width: "100%"
 	}
 }));
 
@@ -42,7 +45,7 @@ const TodoEditDialog = (props) => {
 		<Dialog open={openEditDialog} onClose={() => setOpenEditDialog(!openEditDialog)}>
 			<DialogTitle>Rename Todo</DialogTitle>
 			<DialogContent>
-				<TextField autoFocus margin="dense" label="Name" fullWidth 
+				<TextField className={classes.textFieldRoot} autoFocus margin="dense" label="Name" 
 					value={newTodoName} onChange={(event) => setNewTodoName(event.target.value)} />
 			</DialogContent>
 			<DialogActions>
