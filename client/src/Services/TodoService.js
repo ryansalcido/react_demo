@@ -12,8 +12,11 @@ export default {
 			}
 		});
 	},
-	getTodos: (todo) => {
-		return fetch("/user/todos").then(res => {
+	getTodos: () => {
+		return fetch("/user/todos", {
+			method: "get",
+			headers: { "pragma": "no-cache", "cache-control": "no-cache" }
+		}).then(res => {
 			if(res.status === 401) {
 				return {isAuthenticated: false, user: {name: "", email: ""}};
 			} else {
