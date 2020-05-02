@@ -12,8 +12,12 @@ import PrivateRoute from "./hocs/PrivateRoute";
 import UnPrivateRoute from "./hocs/UnPrivateRoute";
 import themeObject from "./theme";
 import Footer from "./Components/Footer";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const useDarkTheme = () => {
+	toast.configure({autoClose: 2500, draggable: false});
+
 	if(localStorage.getItem("type")) {
 		themeObject.palette.type = localStorage.getItem("type");
 	}
