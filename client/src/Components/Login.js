@@ -14,7 +14,7 @@ import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import AuthService from "../Services/AuthService";
 import { AuthContext } from "../Context/AuthContext";
 import PropTypes from "prop-types";
-import Message from "./Message";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	gridItem: {
@@ -39,40 +39,36 @@ const Login = (props) => {
 	const [ email, setEmail ] = useState("");
 	const [ password, setPassword ] = useState("");
 	const [ showPassword, setShowPassword ] = useState(false);
-	const [ message, setMessage ] = useState({msgBody: "", msgError: false});
 	const authContext = useContext(AuthContext);
 
-	function login() {
+	const onSubmitLogin = () => {
 		if(email === "" && password === "") {
-			setMessage({msgBody: "Username and password are required fields", msgError: true});
+			toast.error("Email and password are required fields");
 		} else if(email === "") {
-			setMessage({msgBody: "Username is a required field", msgError: true});
+			toast.error("Email is a required field");
 		} else if(password === "") {
-			setMessage({msgBody: "Password is a required field", msgError: true});
+			toast.error("Password is a required field");
 		} else {
 			AuthService.login({email, password}).then(data => {
 				const { isAuthenticated, user } = data;
 				if(isAuthenticated) {
-					setMessage({msgBody: "Successfully logged in", msgError: false});
 					authContext.setUser(user);
 					authContext.setIsAuthenticated(isAuthenticated);
+					toast.success(`${user.name} has successfully logged in!`);
 					props.history.push("/dashboard");
 				} else {
+					toast.error("Invalid username or password");
 					setEmail("");
 					setPassword("");
-					setMessage({msgBody: "Invalid username or password", msgError: true});
 				}
 			});
 		}
-	}
+	};
 
 	return (
 		<Fragment>
 			<Typography color="secondary" align="center" variant="h4">Login</Typography>
 			<Grid container direction="column" alignItems="center" justify="center">
-				<Grid item className={`${classes.gridItem} ${classes.messageItem}`}>
-					<Message width="45%" message={message} setMessage={setMessage} />
-				</Grid>
 				<Grid item className={classes.gridItem}>
 					<TextField margin="normal" value={email} onChange={(event) => setEmail(event.target.value)} 
 						name="email" label="Email" variant="outlined" color="secondary"
@@ -112,7 +108,7 @@ const Login = (props) => {
 					<Button color="secondary" variant="contained" component={Link} to={"/register"}>register</Button>
 				</Grid>
 				<Grid item className={classes.loginBtnsItem}>
-					<Button color="primary" variant="contained" startIcon={<ExitToAppIcon />} onClick={() => login()}>
+					<Button color="primary" variant="contained" startIcon={<ExitToAppIcon />} onClick={() => onSubmitLogin()}>
             sign in
 					</Button>
 				</Grid>

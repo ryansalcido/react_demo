@@ -8,6 +8,7 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import TodoService from "../Services/TodoService";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	cancelButton: {
@@ -32,10 +33,12 @@ const TodoEditDialog = (props) => {
 		setIsLoading(true);
 		TodoService.updateTodo({_id: todo._id, name: newTodoName}).then(data => {
 			const { isAuthenticated, message } = data;
-			if(isAuthenticated && message.msgError === false) {
+			if(isAuthenticated && message) {
+				toast.success(message.msgBody);
 				setNewTodoName("");
 				updateTodoList();
 			} else {
+				toast.error("Unable to update todo. Please try again.");
 				setIsLoading(false);
 			}
 		});

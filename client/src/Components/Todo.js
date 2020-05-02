@@ -16,6 +16,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import TodoEditDialog from "./TodoEditDialog";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -79,10 +80,12 @@ const Todo = () => {
 		setIsLoading(true);
 		TodoService.createTodo({name: todo}).then(data => {
 			const { isAuthenticated, message } = data;
-			if(isAuthenticated && message.msgError === false) {
+			if(isAuthenticated && message) {
+				toast.success(message.msgBody);
 				setTodo("");
 				updateTodoList();
 			} else {
+				toast.error("Unable to create todo. Please try again.");
 				setIsLoading(false);
 			}
 		});
@@ -93,9 +96,11 @@ const Todo = () => {
 		const { _id } = myTodo;
 		TodoService.deleteTodo({_id}).then(data => {
 			const { isAuthenticated, message } = data;
-			if(isAuthenticated && message.msgError === false) {
+			if(isAuthenticated && message) {
+				toast.success(message.msgBody);
 				updateTodoList();
 			} else {
+				toast.error("Unable to delete todo. Please try again.");
 				setIsLoading(false);
 			}
 		});

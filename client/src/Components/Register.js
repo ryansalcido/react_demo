@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useRef } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import CancelIcon from "@material-ui/icons/Cancel";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -15,8 +15,8 @@ import useDebounce from "../utils/useDebounce";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import AuthService from "../Services/AuthService";
-import Message from "./Message";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	success: {
@@ -55,14 +55,6 @@ const Register = (props) => {
 	const [ password, setPassword ] = useState("");
 	const [ showPassword, setShowPassword ] = useState(false);
 	const [ passwordError, setPasswordError ] = useState({msgBody: "", msgError: false});
-	const [ message, setMessage ] = useState({msgBody: "", msgError: false});
-	let timerID = useRef(null);
-
-	useEffect(() => {
-		return () => {
-			clearTimeout(timerID);
-		};
-	}, []);
 
 	const debouncedEmail = useDebounce(email, 500);
 	const debouncedPassword = useDebounce(password, 500);
@@ -107,11 +99,11 @@ const Register = (props) => {
 		} else if(nameError.msgError === false && emailError.msgError === false && passwordError.msgError === false) {
 			AuthService.register({ name, email, password }).then(data => {
 				const { message } = data;
-				setMessage(message);
 				if(!message.msgError) {
-					timerID = setTimeout(() => {
-						props.history.push("/login");
-					}, 2000);
+					toast.success("Successfully created account");
+					props.history.push("/login");
+				} else {
+					toast.error("Error creating account. Please try again.");
 				}
 			});
 		}
@@ -122,9 +114,6 @@ const Register = (props) => {
 			<Typography color="secondary" align="center" variant="h4">Register</Typography>
 
 			<Grid container direction="column" alignItems="center" justify="center">
-				<Grid item className={`${classes.gridItem} ${classes.messageItem}`}>
-					<Message width="45%" message={message} setMessage={setMessage} />
-				</Grid>
 				<Grid item className={classes.gridItem}>
 					<TextField color="secondary" value={name} name="name" required label="Name"
 						variant="outlined" inputProps={{maxLength: 38}} 

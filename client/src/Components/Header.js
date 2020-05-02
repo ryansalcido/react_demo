@@ -11,6 +11,7 @@ import Switch from "@material-ui/core/Switch";
 import PropTypes from "prop-types";
 import WbSunnyOutlinedIcon from "@material-ui/icons/WbSunnyOutlined";
 import Brightness3OutlinedIcon from "@material-ui/icons/Brightness3Outlined";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	toolbar: {
@@ -83,8 +84,11 @@ const Header = (props) => {
 	const onClickLogoutHandler = () => {
 		AuthService.logout().then(data => {
 			if(data.success) {
+				toast.info("Successfully logged out");
 				setUser(data.user);
 				setIsAuthenticated(false);
+			} else {
+				toast.error("Error occurred attempting to logout");
 			}
 		});
 	};
