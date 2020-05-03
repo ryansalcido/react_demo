@@ -24,6 +24,7 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
+    "spotify-web-api-node": "^4.0.0",
     "states-utils": "^1.0.10"
   },
   "devDependencies": {

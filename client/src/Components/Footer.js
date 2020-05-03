@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 	footerMain: {
 		display: "flex",
 		color: "black",
-		justifyContent: "space-evenly",
+		justifyContent: "space-around",
 		height: 30
 	},
 	footerText: {
