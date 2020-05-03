@@ -4,6 +4,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import TabPanel from "./TabPanel";
 import Weather from "./Weather";
+import Spotify from "./Spotify";
 
 const Dashboard = () => {
 	const [ value, setValue ] = useState(0);
@@ -27,6 +28,7 @@ const Dashboard = () => {
 			<Tabs value={value} onChange={handleChange} indicatorColor="primary" textColor="primary" centered>
 				<Tab label="Todos" />
 				<Tab label="Weather" />
+				<Tab label="Music" />
 			</Tabs>
 
 			{!isLoading && <Fragment>
@@ -35,6 +37,9 @@ const Dashboard = () => {
 				</TabPanel>
 				<TabPanel value={value} index={1}>
 					<Weather />
+				</TabPanel>
+				<TabPanel value={value} index={2}>
+					<Spotify />
 				</TabPanel>
 			</Fragment>}
 
