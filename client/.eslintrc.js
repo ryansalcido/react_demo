@@ -27,7 +27,7 @@ module.exports = {
 	"rules": {
 		"quotes": [ "error", "double" ],
 		"semi": [ "error", "always"	],
-		"indent": ["error", "tab"],
+		"indent": ["error", "tab", { "SwitchCase": 1}],
 		"eol-last": ["error", "never"],
 		"comma-dangle": ["error", "never"]
 	}

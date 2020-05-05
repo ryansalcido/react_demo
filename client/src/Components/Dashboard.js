@@ -1,10 +1,10 @@
 import React, { Fragment, useState, useEffect } from "react";
-import Todo from "./Todo";
+import Todo from "./Todo/Todo";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import TabPanel from "./TabPanel";
-import Weather from "./Weather";
-import Spotify from "./Spotify";
+import Weather from "./Weather/Weather";
+import Spotify from "./Spotify/Spotify";
 
 const Dashboard = () => {
 	const [ value, setValue ] = useState(0);
