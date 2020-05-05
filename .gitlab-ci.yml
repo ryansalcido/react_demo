@@ -9,8 +9,8 @@ stages:
 docker_build_deploy:
     stage: deploy
     script:
-        - echo "NODE_ENV_FILE" > server/.env
-        - echo "REACT_ENV_FILE" > client/.env
+        - echo "$NODE_ENV_FILE" > server/.env
+        - echo "$REACT_ENV_FILE" > client/.env
         - docker build -t react_demo .
         - docker run -d -p 5000:5000 react_demo
     only:
