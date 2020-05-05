@@ -11,7 +11,9 @@ const nodeCallbackURL = process.env.NODE_ENV === "production"
 	? process.env.SPOTIFY_REDIRECT_URI_PROD
 	: process.env.SPOTIFY_REDIRECT_URI_DEV;
 
-const scopes = ["user-read-private", "user-read-email", "playlist-modify-public", "playlist-modify-private"];
+const scopes = ["user-read-private", "user-read-email", "playlist-modify-public", 
+	"playlist-modify-private", "user-library-read"];
+
 const spotifyApi = new SpotifyWebApi({
 	clientId: process.env.SPOTIFY_CLIENT_ID,
 	clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
@@ -46,12 +48,18 @@ spotifyRouter.get("/profile", (req, res) => {
 	});
 });
 
-spotifyRouter.get("/playlists", (req, res) => {
-	spotifyApi.getUserPlaylists().then(response => {
-		res.status(200).json({playlists: response.body, message: {msgBody: "Successfully retrieved playlists", msgError: false}});
-	}).catch(error => {
+spotifyRouter.get("/playlists", async (req, res) => {
+	try {
+		let result = await spotifyApi.getUserPlaylists();
+		let totalPlaylists = result.body.items;
+		while(result.body.next !== null) {
+			result = await spotifyApi.getUserPlaylists({offset: result.body.limit + result.body.offset});
+			totalPlaylists = [ ...totalPlaylists, result.body.items ];
+		}
+		res.status(200).json({playlists: totalPlaylists, message: {msgBody: "Successfully retrieved playlists", msgError: false}});
+	} catch (err) {
 		res.status(400).json({message: {msgBody: "Unable to retrieve playlists", msgError: true}});
-	});
+	}
 });
 
 spotifyRouter.get("/playlist/:id", async (req, res) => {
@@ -67,6 +75,28 @@ spotifyRouter.get("/playlist/:id", async (req, res) => {
 	} catch (err) {
 		res.status(400).json({message: {msgBody: "Unable to retrieve tracks", msgError: true}});
 	}
+});
+
+spotifyRouter.get("/savedTracks", async (req, res) => {
+	try {
+		let result = await spotifyApi.getMySavedTracks();
+		let totalTracks = result.body.items;
+		while(result.body.next !== null) {
+			result = await spotifyApi.getMySavedTracks({offset: result.body.limit + result.body.offset});
+			totalTracks = [ ...totalTracks, ...result.body.items ];
+		}
+		res.status(200).json({savedTracks: totalTracks, message: {msgBody: "Successfully retrieved your saved songs", msgError: false}});
+	} catch (error) {
+		res.status(400).json({message: {msgBody: "Unable to retrieve your saved songs", msgError: true}});
+	}
+});
+
+spotifyRouter.get("/savedAlbums", (req, res) => {
+	spotifyApi.getMySavedAlbums().then(response => {
+		res.status(200).json({savedAlbums: response.body, message: {msgBody: "Successfully retrieved your saved albums", msgError: false}});
+	}).catch(error => {
+		res.status(400).json({message: {msgBody: "Unable to retrieve your saved albums", msgError: true}});
+	});
 });
 
 module.exports = spotifyRouter;

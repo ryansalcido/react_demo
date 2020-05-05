@@ -6,7 +6,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import TodoService from "../Services/TodoService";
+import TodoService from "../../Services/TodoService";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 

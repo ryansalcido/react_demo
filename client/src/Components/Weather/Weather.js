@@ -6,7 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import ClearIcon from "@material-ui/icons/Clear";
 import Divider from "@material-ui/core/Divider";
 import SearchIcon from "@material-ui/icons/Search";
-import WeatherService from "../Services/WeatherService";
+import WeatherService from "../../Services/WeatherService";
 import Typography from "@material-ui/core/Typography";
 import WeatherCard from "./WeatherCard";
 
