@@ -1,7 +1,6 @@
-import React, { Fragment, useEffect } from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useSelector, useDispatch } from "react-redux";
-import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -9,25 +8,29 @@ import HomeIcon from "@material-ui/icons/Home";
 import SearchIcon from "@material-ui/icons/Search";
 import ListIcon from "@material-ui/icons/List";
 import LibraryMusicIcon from "@material-ui/icons/LibraryMusic";
+import Grid from "@material-ui/core/Grid";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpotify } from "@fortawesome/free-brands-svg-icons";
+import Typography from "@material-ui/core/Typography";
+import Hidden from "@material-ui/core/Hidden";
 import SpotifyService from "../../Services/SpotifyService";
 
 const useStyles = makeStyles((theme) => ({
-	explorePanelIcon: {
-		minWidth: 30,
-		"& .MuiSvgIcon-root": {
-			cursor: "auto"
-		}
+	explorerRoot: {
+		maxHeight: 414,
+		overflowY: "auto"
 	},
-	spotifyLogo: {
-		display: "flex",
-		justifyContent: "center",
-		alignItems: "center"
+	explorePanelIcon: {
+		minWidth: 30
 	},
 	spotifyIcon: {
 		color: "#1DB954",
 		paddingRight: 5
+	},
+	explorerButtonText: {
+		textOverflow: "ellipsis",
+		whiteSpace: "nowrap",
+		overflowX: "hidden"
 	}
 }));
 
@@ -107,45 +110,53 @@ const SpotifyExplorer = () => {
 	};
 
 	return (
-		<Fragment>
-			<div className={classes.spotifyLogo}>
-				<FontAwesomeIcon icon={faSpotify} size="2x" className={classes.spotifyIcon} />
-				<span>SPOTIFY</span>
-			</div>
-			<List dense disablePadding>
-				<ListItem button>
+		<Grid container direction="column">
+			<Grid container item alignItems="center" justify="center">
+				<Grid item>
+					<FontAwesomeIcon icon={faSpotify} size="2x" className={classes.spotifyIcon} />
+				</Grid>
+				<Hidden only="xs">
+					<Grid item>
+						<Typography variant="body2">SPOTIFY</Typography>
+					</Grid>
+				</Hidden>
+			</Grid>
+			
+			<Grid item className={classes.explorerRoot} xs={12}>
+				<ListItem dense button>
 					<ListItemIcon className={classes.explorePanelIcon}><HomeIcon /></ListItemIcon>
-					<ListItemText primary="HOME" />
+					<ListItemText classes={{primary: classes.explorerButtonText}} primary="HOME" />
 				</ListItem>
-				<ListItem button>
+				<ListItem dense button>
 					<ListItemIcon className={classes.explorePanelIcon}><SearchIcon /></ListItemIcon>
-					<ListItemText primary="SEARCH" />
+					<ListItemText classes={{primary: classes.explorerButtonText}} primary="SEARCH" />
 				</ListItem>
-				<ListItem divider>
+				<ListItem dense divider>
 					<ListItemIcon className={classes.explorePanelIcon}><LibraryMusicIcon /></ListItemIcon>
-					<ListItemText primary="YOUR LIBRARY" />
+					<ListItemText classes={{primary: classes.explorerButtonText}} primary="YOUR LIBRARY" />
 				</ListItem>
-				<ListItem button>
-					<ListItemText primary="Songs" onClick={() => getSavedTracks()} />
+				<ListItem dense button>
+					<ListItemText classes={{primary: classes.explorerButtonText}} 
+						primary="Songs" onClick={() => getSavedTracks()} />
 				</ListItem>
-				<ListItem button>
-					<ListItemText primary="Albums" onClick={() => getSavedAlbums()} />
+				<ListItem dense button>
+					<ListItemText classes={{primary: classes.explorerButtonText}}
+						primary="Albums" onClick={() => getSavedAlbums()} />
 				</ListItem>
-				<ListItem divider>
+				<ListItem dense divider>
 					<ListItemIcon className={classes.explorePanelIcon}><ListIcon /></ListItemIcon>
-					<ListItemText primary="PLAYLISTS" />
+					<ListItemText classes={{primary: classes.explorerButtonText}} primary="PLAYLISTS" />
 				</ListItem>
 				{playlists.map((playlist) => {
 					return (
-						<Fragment key={playlist.id} >
-							<ListItem button dense>
-								<ListItemText primary={playlist.name} onClick={() => getTracksByPlaylist(playlist)} />
-							</ListItem>
-						</Fragment>
+						<ListItem button dense key={playlist.id}>
+							<ListItemText classes={{primary: classes.explorerButtonText}}
+								primary={playlist.name} onClick={() => getTracksByPlaylist(playlist)} />
+						</ListItem>
 					);
 				})}
-			</List>
-		</Fragment>
+			</Grid>
+		</Grid>
 	);
 };
 

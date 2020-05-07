@@ -5,6 +5,8 @@ import GridListTile from "@material-ui/core/GridListTile";
 import GridListTileBar from "@material-ui/core/GridListTileBar";
 import Typography from "@material-ui/core/Typography";
 import { useSelector, useDispatch } from "react-redux";
+import withWidth, { isWidthUp } from "@material-ui/core/withWidth";
+import PropTypes from "prop-types";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -18,8 +20,9 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const SpotifyAlbumView = () => {
+const SpotifyAlbumView = (props) => {
 	const classes = useStyles();
+	const { width } = props;
 	const albums = useSelector(state => state.albums);
 	const dispatch = useDispatch();
 
@@ -46,10 +49,26 @@ const SpotifyAlbumView = () => {
 		dispatch({isLoading: false, type: "SET_IS_LOADING"});
 	};
 
+	const getGridListCols = () => {
+		if (isWidthUp("lg", width)) {
+			return 4;
+		}
+
+		if (isWidthUp("md", width)) {
+			return 3;
+		}
+
+		if (isWidthUp("sm", width)) {
+			return 2;
+		}
+
+		return 1;
+	};
+
 	return (
 		<div className={classes.root}>
 			<Typography variant="h4">Albums</Typography>
-			<GridList cols={4} spacing={16} cellHeight={250} classes={{root: classes.albumListRoot}}>
+			<GridList cols={getGridListCols()} spacing={4} cellHeight={250} classes={{root: classes.albumListRoot}}>
 				{albums.map((item) => (
 					<GridListTile key={item.album.id} className={classes.albumTile} onClick={() => getTracksByAlbum(item)}>
 						<img src={item.album.images[0].url} alt={item.album.name} />
@@ -61,4 +80,8 @@ const SpotifyAlbumView = () => {
 	);
 };
 
-export default SpotifyAlbumView;
+SpotifyAlbumView.propTypes = {
+	width: PropTypes.string.isRequired
+};
+
+export default withWidth()(SpotifyAlbumView);

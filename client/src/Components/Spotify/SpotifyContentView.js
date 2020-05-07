@@ -8,14 +8,14 @@ import Spinner from "react-spinkit";
 
 const useStyles = makeStyles((theme) => ({
 	contentView: {
-		height: "calc(100% - 36px)",
+		maxHeight: 414,
 		overflowY: "auto"
 	},
 	loadingSpinner: {
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
-		height: "inherit"
+		height: 414
 	}
 }));
 

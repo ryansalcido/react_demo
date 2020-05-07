@@ -1,15 +1,12 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useSelector } from "react-redux";
-import InputBase from "@material-ui/core/InputBase";
+import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme) => ({
 	spotifyHeader: {
 		height: 36,
-		display: "flex",
-		justifyContent: "space-between",
-		alignItems: "center",
 		padding: "0 16px"
 	}
 }));
@@ -20,8 +17,11 @@ const SpotifyHeader = () => {
 
 	return (
 		<div className={classes.spotifyHeader}>
-			<InputBase placeholder="Search..." />
-			<Typography variant="body1" align="right">{profile.display_name}</Typography>
+			<Grid container alignItems="center" justify="flex-end">
+				<Grid item>
+					<Typography variant="body1" align="right">{profile.display_name}</Typography>
+				</Grid>
+			</Grid>
 		</div>
 	);
 };
