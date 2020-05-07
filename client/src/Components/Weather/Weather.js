@@ -1,31 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 import IconButton from "@material-ui/core/IconButton";
-import ClearIcon from "@material-ui/icons/Clear";
 import Divider from "@material-ui/core/Divider";
+import ClearIcon from "@material-ui/icons/Clear";
 import SearchIcon from "@material-ui/icons/Search";
-import WeatherService from "../../Services/WeatherService";
 import Typography from "@material-ui/core/Typography";
+import WeatherService from "../../Services/WeatherService";
 import WeatherCard from "./WeatherCard";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import ToggleButton from "@material-ui/lab/ToggleButton";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		marginLeft: theme.spacing(2)
+		padding: theme.spacing(1)
+	},
+	locationPaper: {
+		display: "flex",
+		padding: "2px 4px"
 	},
 	locationInput: {
 		flex: 1
 	},
-	locationRoot: {
-		width: "50%",
-		padding: "2px 4px",
-		display: "flex",
-		alignItems: "center"
-	},
-	inputDivider: {
+	divider: {
 		height: 28,
 		margin: 4
+	},
+	tempToggleBtn: {
+		width: 33
 	}
 }));
 
@@ -35,6 +39,7 @@ const Weather = () => {
 	const [ location, setLocation ] = useState("");
 	const [ forecast, setForecast ] = useState({});
 	const [ message, setMessage ] = useState({msgBody: "", msgError: false});
+	const [ tempScale, setTempScale ] = useState("fahrenheit");
 
 	useEffect(() => {
 		if(localStorage.getItem("weather")) {
@@ -42,7 +47,6 @@ const Weather = () => {
 			setForecast(dailyWeather);
 		}
 	}, []);
-
 
 	const calcTempConversion = (temp) => {
 		return {
@@ -59,7 +63,14 @@ const Weather = () => {
 		};
 	};
 
-	const getWeatherInfo = () => {
+	const handleTempScaleChange = (event, newTempScale) => {
+		if(newTempScale !== null) {
+			setTempScale(newTempScale);
+		}
+	};
+
+	const getWeatherInfo = (e) => {
+		e.preventDefault();
 		WeatherService.getWeatherForecast({location}).then(data => {
 			const { message, weatherForecast, location } = data;
 			if(message.msgError === true) {
@@ -90,23 +101,44 @@ const Weather = () => {
 
 	return (
 		<div className={classes.root}>
-			<Paper className={classes.locationRoot}>
-				<InputBase value={location} className={classes.locationInput} placeholder="Enter a location"
-					onChange={(event) => setLocation(event.target.value)} />
-				<IconButton size="small" onClick={() => setLocation("")}>
-					{location !== "" && <ClearIcon />}
-				</IconButton>
-				<Divider className={classes.inputDivider} orientation="vertical" />
-				<IconButton size="small" disabled={location === ""} color="primary" onClick={() => getWeatherInfo()}>
-					<SearchIcon />
-				</IconButton>
-    	</Paper>
-
-			{message.msgError === true && 
-				<Typography color="error" variant="subtitle1">{message.msgBody}</Typography>
-			}
-
-			{forecast.city && forecast.list && <WeatherCard forecast={forecast} />}
+			<Grid container direction="column" spacing={1}>
+				<Grid container item direction="row" spacing={3}>
+					<Grid item xs={8} md={7} lg={5}>
+						<form onSubmit={getWeatherInfo}>
+							<Paper className={classes.locationPaper}>
+								<InputBase value={location} autoFocus className={classes.locationInput} placeholder="Enter a location"
+									onChange={(event) => setLocation(event.target.value)} />
+								<IconButton size="small" onClick={() => setLocation("")}>
+									{location !== "" && <ClearIcon />}
+								</IconButton>
+								<Divider className={classes.divider} orientation="vertical" />
+								<IconButton size="small" disabled={location === ""} color="primary" onClick={getWeatherInfo}>
+									<SearchIcon />
+								</IconButton>
+							</Paper>
+						</form>
+					</Grid>
+					<Grid item xs={4} md={5} lg={3}>
+						<ToggleButtonGroup size="small" value={tempScale} exclusive onChange={handleTempScaleChange}>
+							<ToggleButton className={classes.tempToggleBtn} value="fahrenheit">°F</ToggleButton>
+							<ToggleButton className={classes.tempToggleBtn} value="celsius">°C</ToggleButton>
+							<ToggleButton className={classes.tempToggleBtn} value="kelvin">K</ToggleButton>
+						</ToggleButtonGroup>
+					</Grid>
+				</Grid>
+				<Grid container item>
+					<Grid item xs={12} md={9} lg={6}>
+						{message.msgError === true && 
+							<Typography color="error" variant="subtitle1">{message.msgBody}</Typography>
+						}
+					</Grid>
+				</Grid>
+				<Grid container item>
+					<Grid item xs={12} md={10} lg={8}>
+						{forecast.city && forecast.list && <WeatherCard forecast={forecast} tempScale={tempScale} />}
+					</Grid>
+				</Grid>
+			</Grid>
 		</div>
 	);
 };

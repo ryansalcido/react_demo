@@ -1,5 +1,6 @@
 import React from "react";
 import Typography from "@material-ui/core/Typography";
+import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -10,14 +11,9 @@ const useStyles = makeStyles((theme) => ({
 		position: "absolute",
 		backgroundColor: theme.palette.primary.main
 	},
-	footerMain: {
-		display: "flex",
-		color: "black",
-		justifyContent: "space-around",
-		height: 30
-	},
 	footerText: {
-		padding: 3
+		padding: 3,
+		color: "black"
 	}
 }));
 
@@ -26,10 +22,18 @@ const Footer = () => {
 
 	return (
 		<footer className={classes.footer}>
-			<div className={classes.footerMain}>
-				<Typography variant="body1" className={classes.footerText}>{"Ryan's React Project"}</Typography>
-				<Typography variant="body1" className={classes.footerText}>Created: April 2020</Typography>
-			</div>
+			<Grid container alignItems="center" wrap="nowrap" justify="space-around">
+				<Grid item zeroMinWidth>
+					<Typography variant="body1" title="Ryan's React Project" noWrap className={classes.footerText}>
+						{"Ryan's React Project"}
+					</Typography>
+				</Grid>
+				<Grid item zeroMinWidth>
+					<Typography variant="body1" title="Created: April 2020" noWrap className={classes.footerText}>
+						Created: April 2020
+					</Typography>
+				</Grid>
+			</Grid>
 		</footer>
 	);
 };

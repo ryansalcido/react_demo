@@ -1,136 +1,130 @@
-import React, { Fragment, useState } from "react";
-import PropTypes from "prop-types";
+import React, { Fragment, useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Divider from "@material-ui/core/Divider";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import Box from "@material-ui/core/Box";
+import PropTypes from "prop-types";
+import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
-import ToggleButton from "@material-ui/lab/ToggleButton";
+import Paper from "@material-ui/core/Paper";
+import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
+import withWidth, { isWidthUp } from "@material-ui/core/withWidth";
 import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
-	divider: {
-		height: 28,
-		margin: 4
+	root: {
+		padding: 16
 	},
-	weatherCard: {
-		width: "65%",
-		marginTop: theme.spacing(3)
+	weatherMainContainer: {
+		borderRight: `1px solid ${theme.palette.divider}`
+	},
+	dailyForecastGrid: {
+		textAlign: "center"
 	},
 	weatherBtnRoot: {
-		width: "100%",
-		"&:hover" : {
-			backgroundColor: "unset"
-		}
+		width: "100%"
 	},
 	weatherBtnLabel: {
-		display: "block",
-		color: "unset"
+		color: theme.palette.type === "dark" ? "white" : "black"
 	},
-	tempToggleGroup: {
-		paddingLeft: 2,
-		minWidth: 102
+	dailyWeatherIconItem: {
+		display: "flex",
+		justifyContent: "center"
 	},
-	tempToggleBtn: {
-		width: 34
-	},
-	tempValue: {
-		width: 58,
-		height: 42
+	fiveDayForecastContainer: {
+		minHeight: 65
 	}
 }));
 
 const WeatherCard = (props) => {
 	const classes = useStyles();
-	const { forecast } = props;
-	const [ selectedForecast, setSelectedForecast ] = useState(forecast.list[0]);
-	const [ tempScale, setTempScale ] = useState("fahrenheit");
+	const { forecast, tempScale, width } = props;
+	const [ selectedForecast, setSelectedForecast ] = useState({});
+
+	useEffect(() => {
+		setSelectedForecast(forecast.list[0]);
+	}, [forecast]);
 
 	const formatDate = (date, format) => {
 		return moment.unix(date).format(format);
-	};
-
-	const handleTempScaleChange = (event, newTempScale) => {
-		if(newTempScale !== null) {
-			setTempScale(newTempScale);
-		}
 	};
 
 	const handleWeatherDayClick = (reading, idx) => {
 		setSelectedForecast(reading);
 	};
 
+	const isWidthAtLeastSmall = () => {
+		return isWidthUp("sm", width);
+	};
+
 	return (
 		<Fragment>
-			{selectedForecast.dt && forecast.city && forecast.list && 
-			<Card className={classes.weatherCard}>
-				<CardContent>
-					<Typography variant="h6">{forecast.location}</Typography>
-					<Typography variant="body1">{formatDate(selectedForecast.dt, "dddd, MMMM Do, YYYY")}</Typography>
-					<Typography variant="body2">{selectedForecast.weather[0].main}</Typography>
-					<Box style={{width: "100%", paddingBottom: "24px"}} display="flex">
-						<Box style={{width: "50%"}} display="flex" alignItems="center">
-							<i className={`owf owf-${selectedForecast.weather[0].id}-${selectedForecast.sys.pod} owf-5x owf-fw`} />
-							<Typography className={classes.tempValue} variant="h4">{selectedForecast.calc.temp[tempScale]}</Typography>
-							<ToggleButtonGroup className={classes.tempToggleGroup} size="small" value={tempScale} exclusive 
-								onChange={handleTempScaleChange}>
-								<ToggleButton className={classes.tempToggleBtn} value="fahrenheit">°F</ToggleButton>
-								<ToggleButton className={classes.tempToggleBtn} value="celsius">°C</ToggleButton>
-								<ToggleButton className={classes.tempToggleBtn} value="kelvin">K</ToggleButton>
-							</ToggleButtonGroup>
-						</Box>
-						<Box style={{width: "50%", paddingLeft: "20%"}}>
-							<Typography variant="body2">Humidity: {selectedForecast.main.humidity}%</Typography>
-							<Typography variant="body2">
-								Wind:
-								{tempScale === "fahrenheit"
-									? ` ${selectedForecast.calc.wind["imperial"]} mph` 
-									: ` ${selectedForecast.calc.wind["metric"]} m/s`}
-							</Typography>
-							{selectedForecast.rain &&
-								<Typography variant="body2">
-									Rain last 3 hours: {selectedForecast.rain["3h"]}mm
+			{selectedForecast.dt && forecast.city && forecast.list &&
+			<Paper className={classes.root}>
+				<Grid container spacing={1}>
+					<Grid item xs={12} sm={6} className={isWidthAtLeastSmall() ? classes.weatherMainContainer : null}>
+						<Typography variant="h6">{forecast.location}</Typography>
+						<Typography variant="body1">{formatDate(selectedForecast.dt, "dddd, MMMM Do, YYYY")}</Typography>
+						<Typography variant="body1">{selectedForecast.weather[0].main}</Typography>
+						<Grid container item justify="flex-start">
+							<Grid item>
+								<img src={`http://openweathermap.org/img/wn/${selectedForecast.weather[0].icon}@2x.png`} 
+									alt="Weather" width="100" height="100" />
+							</Grid>
+							<Grid item>
+								<Typography variant="h4">
+									{selectedForecast.calc.temp[tempScale]}{tempScale !== "kelvin" && "°"}{tempScale.charAt(0).toUpperCase()}
 								</Typography>
-							}
-							{selectedForecast.snow &&
-								<Typography variant="body2">
-									Snow last 3 hours: {selectedForecast.snow["3h"]}mm
-								</Typography>
-							}
-						</Box>
-					</Box>
-					<Divider />
-					<Box style={{width: "100%"}} display="flex" justifyContent="flex-start">
+							</Grid>
+						</Grid>
+						<Typography variant="body1">Humidity: {selectedForecast.main.humidity}%</Typography>
+						<Typography variant="body1">
+							Wind:
+							{tempScale === "fahrenheit"? ` ${selectedForecast.calc.wind["imperial"]} mph` 
+								: ` ${selectedForecast.calc.wind["metric"]} m/s`}
+						</Typography>
+						{selectedForecast.rain &&
+							<Typography variant="body1">Rain last 3 hours: {selectedForecast.rain["3h"]}mm</Typography>
+						}
+						{selectedForecast.snow &&
+							<Typography variant="body1">Snow last 3 hours: {selectedForecast.snow["3h"]}mm</Typography>
+						}
+					</Grid>
+					<Grid item xs={12} sm={6} className={classes.dailyForecastGrid}>
+						{!isWidthAtLeastSmall() && <Divider />}
 						{forecast.list.map((reading, idx) => {
 							return (
 								<Fragment key={`reading-${idx}`}>
-									<Box style={{width: "20%", textAlign: "center"}}>
-										<Button classes={{label: classes.weatherBtnLabel, root: classes.weatherBtnRoot}}
+									<Grid container item justify="space-between" alignItems="center" className={classes.fiveDayForecastContainer}>
+										<Button classes={{root: classes.weatherBtnRoot, label: classes.weatherBtnLabel}}
 											onClick={() => handleWeatherDayClick(reading, idx)}>
-											<Typography variant="body1">{formatDate(reading.dt, "dddd")}</Typography>
-											<Typography variant="body1">{formatDate(reading.dt, "MM/DD")}</Typography>
-											<i className={`owf owf-${reading.weather[0].id}-d owf-3x owf-fw`} />
-											<Typography variant="body2">{reading.calc.temp[tempScale]}°</Typography>
+											<Grid item xs={4}>
+												<Typography variant="body1">{formatDate(reading.dt, "ddd. MM/DD")}</Typography>
+											</Grid>
+											<Grid item xs={4} className={classes.dailyWeatherIconItem}>
+												<img src={`http://openweathermap.org/img/wn/${reading.weather[0].icon}.png`}
+													alt="Weather" width="45" height="45" />
+											</Grid>
+											<Grid item xs={4}>
+												<Typography variant="body1">
+													{reading.calc.temp[tempScale]}{tempScale !== "kelvin" && "°"}{tempScale.charAt(0).toUpperCase()}
+												</Typography>
+											</Grid>
 										</Button>
-									</Box>
-									{(forecast.list.length > idx + 1) && 
-										<Divider orientation="vertical" flexItem />
-									}
+									</Grid>
+									{(forecast.list.length > idx + 1) && <Divider />}
 								</Fragment>
 							);
 						})}
-					</Box>
-				</CardContent>
-			</Card>}
+					</Grid>
+				</Grid>
+			</Paper>}
 		</Fragment>
 	);
 };
 
 WeatherCard.propTypes = {
-	forecast: PropTypes.object.isRequired
+	forecast: PropTypes.object.isRequired,
+	tempScale: PropTypes.string.isRequired,
+	width: PropTypes.string.isRequired
 };
 
-export default WeatherCard;
+export default withWidth()(WeatherCard);

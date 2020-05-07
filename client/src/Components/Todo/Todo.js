@@ -15,40 +15,34 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Grid from "@material-ui/core/Grid";
 import TodoEditDialog from "./TodoEditDialog";
 import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		marginLeft: theme.spacing(2)
+		padding: theme.spacing(1)
 	},
 	createTodo: {
 		padding: "2px 4px",
 		display: "flex",
 		alignItems: "center"
 	},
-	todoList: {
-		marginTop: theme.spacing(3),
-		padding: "2px 4px",
-		maxHeight: 350,
-		overflowY: "auto"
-	},
-	input: {
-		flex: 1
-	},
-	iconButton: {
-		padding: 10
-	},
 	divider: {
 		height: 28,
 		margin: 4
 	},
+	input: {
+		flex: 1
+	},
+	todoList: {
+		padding: "2px 4px",
+		overflowY: "auto",
+		maxHeight: 350
+	},
 	backdrop: {
 		zIndex: theme.zIndex.drawer + 1,
 		color: "#FFF"
-	},
-	noTodosText: {
-		paddingTop: theme.spacing(3)
 	}
 }));
 
@@ -72,16 +66,18 @@ const Todo = () => {
 			if(isAuthenticated && todos) {
 				setTodoList(todos);
 				setIsLoading(false);
+			} else {
+				setIsLoading(false);
 			}
 		});
 	};
 
-	const createTodo = () => {
+	const createTodo = (e) => {
+		e.preventDefault();
 		setIsLoading(true);
 		TodoService.createTodo({name: todo}).then(data => {
 			const { isAuthenticated, message } = data;
 			if(isAuthenticated && message) {
-				toast.success(message.msgBody);
 				setTodo("");
 				updateTodoList();
 			} else {
@@ -97,7 +93,6 @@ const Todo = () => {
 		TodoService.deleteTodo({_id}).then(data => {
 			const { isAuthenticated, message } = data;
 			if(isAuthenticated && message) {
-				toast.success(message.msgBody);
 				updateTodoList();
 			} else {
 				toast.error("Unable to delete todo. Please try again.");
@@ -115,42 +110,48 @@ const Todo = () => {
 			<TodoEditDialog todo={selectedTodo} updateTodoList={updateTodoList} setIsLoading={setIsLoading}
 				openEditDialog={openEditDialog} setOpenEditDialog={setOpenEditDialog} />
 
-			<Paper className={classes.createTodo}>
-				<InputBase value={todo} className={classes.input} placeholder="Create todo"
-					onChange={(event) => setTodo(event.target.value)} />
-				<Divider className={classes.divider} orientation="vertical" />
-				<IconButton disabled={todo === ""} color="primary" className={classes.iconButton} onClick={() => createTodo()}>
-					<AddCircleOutlineOutlinedIcon />
-				</IconButton>
-    	</Paper>
-			
-			{todoList.length === 0 
-				? <Typography className={classes.noTodosText}>No todos. You may create a new Todo above.</Typography>
-				: (
-					<Paper className={classes.todoList}>
-						<List disablePadding>
-							{todoList.map((myTodo, idx) => {
-								return (
-									<Fragment key={`${myTodo.name}-${idx}`}>
-										<ListItem>
-											<ListItemText primary={myTodo.name} />
-											<ListItemSecondaryAction>
-												<IconButton edge="end" onClick={() => {setSelectedTodo(myTodo); setOpenEditDialog(true);}} >
-													<EditIcon />
-												</IconButton>
-												<IconButton edge="end" onClick={() => deleteTodo(myTodo)}>
-													<DeleteIcon />
-												</IconButton>
-											</ListItemSecondaryAction>
-										</ListItem>
-										{(todoList.length > idx + 1) && <Divider />}
-									</Fragment>
-								);
-							})}
-						</List>
-					</Paper>
-				)
-			}
+			<Grid container spacing={1}>
+				<Grid item xs={12} md={9} lg={7}>
+					<form onSubmit={createTodo}>
+						<Paper className={classes.createTodo}>
+							<InputBase value={todo} autoFocus className={classes.input} placeholder="Create todo"
+								onChange={(event) => setTodo(event.target.value)} />
+							<Divider className={classes.divider} orientation="vertical" />
+							<IconButton disabled={todo === ""} size="small" color="primary" onClick={createTodo}>
+								<AddCircleOutlineOutlinedIcon />
+							</IconButton>
+						</Paper>
+					</form>
+				</Grid>
+				<Grid item xs={12}>
+					{todoList.length === 0 
+						? <Typography>No todos. You may create a new Todo above.</Typography>
+						: (
+							<Paper className={classes.todoList}>
+								<List disablePadding>
+									{todoList.map((myTodo, idx) => {
+										return (
+											<Fragment key={`${myTodo.name}-${idx}`}>
+												<ListItem  style={{minHeight: 50}}>
+													<ListItemText primary={myTodo.name} />
+													<ListItemSecondaryAction>
+														<IconButton edge="end" onClick={() => {setSelectedTodo(myTodo); setOpenEditDialog(true);}} >
+															<EditIcon />
+														</IconButton>
+														<IconButton edge="end" onClick={() => deleteTodo(myTodo)}>
+															<DeleteIcon />
+														</IconButton>
+													</ListItemSecondaryAction>
+												</ListItem>
+												{(todoList.length > idx + 1) && <Divider />}
+											</Fragment>
+										);
+									})}
+								</List>
+							</Paper>
+						)}
+				</Grid>
+			</Grid>
 		</div>
 	);
 };

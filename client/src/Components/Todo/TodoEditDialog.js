@@ -34,7 +34,6 @@ const TodoEditDialog = (props) => {
 		TodoService.updateTodo({_id: todo._id, name: newTodoName}).then(data => {
 			const { isAuthenticated, message } = data;
 			if(isAuthenticated && message) {
-				toast.success(message.msgBody);
 				setNewTodoName("");
 				updateTodoList();
 			} else {

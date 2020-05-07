@@ -6,19 +6,11 @@ import SpotifyExplorer from "./SpotifyExplorer";
 import SpotifyContentView from "./SpotifyContentView";
 
 const useStyles = makeStyles((theme) => ({
-	spotifyContainer: {
-		width: "100%",
-		height: "445px",
-		padding: 5
+	root: {
+		maxHeight: 450
 	},
-	explorerPanel: {
-		width: "15%",
-		height: "100%",
+	explorerView: {
 		borderRight: `1px solid ${theme.palette.divider}`
-	},
-	contentViewPanel: {
-		width: "85%",
-		height: "100%"
 	}
 }));
 
@@ -26,12 +18,12 @@ const SpotifyContainer = () => {
 	const classes = useStyles();
 
 	return (
-		<Paper elevation={4}>
-			<Grid container direction="row" className={classes.spotifyContainer}>
-				<Grid item className={classes.explorerPanel}>
+		<Paper elevation={4} className={classes.root}>
+			<Grid container>
+				<Grid item xs={4} sm={3} md={2} className={classes.explorerView}>
 					<SpotifyExplorer />
 				</Grid>
-				<Grid item className={classes.contentViewPanel}>
+				<Grid item xs={8} sm={9} md={10}>
 					<SpotifyContentView />
 				</Grid>
 			</Grid>

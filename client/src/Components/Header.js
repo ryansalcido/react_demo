@@ -14,6 +14,9 @@ import Brightness3OutlinedIcon from "@material-ui/icons/Brightness3Outlined";
 import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
+	appBar: {
+		minHeight: 40
+	},
 	toolbar: {
 		minHeight: 40
 	}
@@ -112,20 +115,18 @@ const Header = (props) => {
 	};
 
 	return (
-		<Fragment>
-			<AppBar color="primary" position="static">
-				<Toolbar className={classes.toolbar}>
-					<Grid container alignItems="flex-start" justify="flex-end" direction="row">
-						<ThemeSwitch checked={themeType === "dark"} onChange={() => toggleDarkTheme()} 
-							icon={<WbSunnyOutlinedIcon style={{ color: "yellow" }} />} 
-							checkedIcon={<Brightness3OutlinedIcon />}
-						/>
-						<Button component={Link} to={"/"}>home</Button>
-						{isAuthenticated ? authenticatedHeader() : unauthenticatedHeader()}
-					</Grid>
-				</Toolbar>
-			</AppBar>
-		</Fragment>
+		<AppBar color="primary" position="static" className={classes.appBar}>
+			<Toolbar className={classes.toolbar}>
+				<Grid container alignItems="flex-start" justify="flex-end" direction="row">
+					<ThemeSwitch checked={themeType === "dark"} onChange={() => toggleDarkTheme()} 
+						icon={<WbSunnyOutlinedIcon style={{ color: "yellow" }} />} 
+						checkedIcon={<Brightness3OutlinedIcon />}
+					/>
+					<Button component={Link} to={"/"}>home</Button>
+					{isAuthenticated ? authenticatedHeader() : unauthenticatedHeader()}
+				</Grid>
+			</Toolbar>
+		</AppBar>
 	);
 };
 
