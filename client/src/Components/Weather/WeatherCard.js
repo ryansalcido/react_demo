@@ -66,7 +66,7 @@ const WeatherCard = (props) => {
 						<Typography variant="body1">{selectedForecast.weather[0].main}</Typography>
 						<Grid container item justify="flex-start">
 							<Grid item>
-								<img src={`http://openweathermap.org/img/wn/${selectedForecast.weather[0].icon}@2x.png`} 
+								<img src={`https://openweathermap.org/img/wn/${selectedForecast.weather[0].icon}@2x.png`} 
 									alt="Weather" width="100" height="100" />
 							</Grid>
 							<Grid item>
@@ -100,7 +100,7 @@ const WeatherCard = (props) => {
 												<Typography variant="body1">{formatDate(reading.dt, "ddd. MM/DD")}</Typography>
 											</Grid>
 											<Grid item xs={4} className={classes.dailyWeatherIconItem}>
-												<img src={`http://openweathermap.org/img/wn/${reading.weather[0].icon}.png`}
+												<img src={`https://openweathermap.org/img/wn/${reading.weather[0].icon}.png`}
 													alt="Weather" width="45" height="45" />
 											</Grid>
 											<Grid item xs={4}>
