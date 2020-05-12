@@ -72,7 +72,7 @@ const Login = (props) => {
 						</Avatar>
 					</Grid>
 					<Grid container item justify="center">
-						<Grid item xs={11} md={5} lg={3}>
+						<Grid item xs={11} sm={7} md={5} lg={3}>
 							<TextField value={email} variant="outlined" fullWidth autoFocus required 
 								id="email" label="Email address" name="email" autoComplete="email" 
 								onChange={(event) => setEmail(event.target.value)} 
@@ -86,7 +86,7 @@ const Login = (props) => {
 						</Grid>
 					</Grid>
 					<Grid container item justify="center">
-						<Grid item xs={11} md={5} lg={3}>
+						<Grid item xs={11} sm={7} md={5} lg={3}>
 							<TextField value={password} variant="outlined" fullWidth required id="password" 
 								label="Password" name="password" type={showPassword ? "text" : "password"}
 								onChange={(event) => setPassword(event.target.value)} 
@@ -104,7 +104,7 @@ const Login = (props) => {
 						</Grid>
 					</Grid>
 					<Grid container item justify="center">
-						<Grid item xs={11} md={5} lg={3} align="right">
+						<Grid item xs={11} sm={7} md={5} lg={3} align="right">
 							<Button variant="contained" fullWidth color="primary" type="submit" 
 								startIcon={<ExitToAppIcon />} onClick={onSubmit} disabled={email === "" || password === ""}>
 								sign in

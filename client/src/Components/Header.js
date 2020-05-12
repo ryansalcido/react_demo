@@ -115,7 +115,7 @@ const Header = (props) => {
 	};
 
 	return (
-		<AppBar color="primary" position="static" className={classes.appBar}>
+		<AppBar color="primary" position="static" className={classes.appBar} id="back-to-top-anchor">
 			<Toolbar className={classes.toolbar}>
 				<Grid container alignItems="flex-start" justify="flex-end" direction="row">
 					<ThemeSwitch checked={themeType === "dark"} onChange={() => toggleDarkTheme()} 
