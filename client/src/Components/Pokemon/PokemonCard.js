@@ -15,7 +15,7 @@ import HelpOutlineOutlinedIcon from "@material-ui/icons/HelpOutlineOutlined";
 const useStyles = makeStyles((theme) => ({
 	root: {
 		padding: theme.spacing(1),
-		height: 346
+		minHeight: 346
 	},
 	pokemonImage: {
 		textAlign: "center"
