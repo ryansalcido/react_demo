@@ -21,7 +21,7 @@ weatherRouter.post("/forecast", passport.authenticate("jwt", {session: false}), 
 	if(parsedLocation.length === 2) { //If state is in the US, append US to the end of the location query
 		normalizedLocation += STATE_UTILS.isUSAState(parsedLocation[1].trim()) ? ",US" : "";
 	}
-	axios.get(`http://api.openweathermap.org/data/2.5/forecast?q=${normalizedLocation}&appid=${process.env.OWM_API_KEY}&units=imperial`)
+	axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${normalizedLocation}&appid=${process.env.OWM_API_KEY}&units=imperial`)
 		.then(owmRes => {
 			var city = City.findOne({id: owmRes.data.city.id}).exec();
 			city.then(doc => {

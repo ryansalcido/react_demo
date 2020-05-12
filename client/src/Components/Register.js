@@ -114,7 +114,7 @@ const Register = (props) => {
 						</Avatar>
 					</Grid>
 					<Grid container item justify="center">
-						<Grid item xs={11} md={5} lg={3}>
+						<Grid item xs={11} sm={7} md={5} lg={3}>
 							<TextField value={name} variant="outlined" fullWidth autoFocus required 
 								id="name" label="Name" name="name"
 								onChange={(event) => setName(event.target.value)} onBlur={() => validateName()}
@@ -129,7 +129,7 @@ const Register = (props) => {
 						</Grid>
 					</Grid>
 					<Grid container item justify="center">
-						<Grid item xs={11} md={5} lg={3}>
+						<Grid item xs={11} sm={7} md={5} lg={3}>
 							<TextField value={email} variant="outlined" fullWidth required 
 								id="email" label="Email address" name="email" type="email"
 								onChange={(event) => setEmail(event.target.value)} onBlur={() => validateEmail()}
@@ -144,7 +144,7 @@ const Register = (props) => {
 						</Grid>
 					</Grid>
 					<Grid container item justify="center">
-						<Grid item xs={11} md={5} lg={3}>
+						<Grid item xs={11} sm={7} md={5} lg={3}>
 							<TextField value={password} variant="outlined" fullWidth required 
 								id="password" label="Password" name="email" type={showPassword ? "text" : "password"}
 								onChange={(event) => setPassword(event.target.value)} onBlur={() => validatePassword()}
@@ -162,12 +162,12 @@ const Register = (props) => {
 						</Grid>
 					</Grid>
 					<Grid container item justify="center" className={classes.pwStrengthMeter}>
-						<Grid item xs={11} md={5} lg={3}>
+						<Grid item xs={11} sm={7} md={5} lg={3}>
 							<PasswordStrengthMeter password={password} />
 						</Grid>
 					</Grid>
 					<Grid container item justify="center">
-						<Grid item xs={11} md={5} lg={3} align="right">
+						<Grid item xs={11} sm={7} md={5} lg={3} align="right">
 							<Button variant="contained" fullWidth color="primary" type="submit" 
 								startIcon={<CreateIcon />} onClick={onSubmit} disabled={!isFormValid()}>
 								register

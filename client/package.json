@@ -12,6 +12,7 @@
     "@material-ui/lab": "^4.0.0-alpha.50",
     "@material-ui/styles": "^4.9.10",
     "axios": "^0.19.2",
+    "intersection-observer": "^0.10.0",
     "moment": "^2.24.0",
     "react": "^16.13.1",
     "react-app-polyfill": "^1.0.6",
