@@ -52,7 +52,7 @@ userRouter.post("/register", (req, res) => {
 		if(user) {
 			res.status(400).json({message: {msgBody: "Email is already taken", msgError: true}});
 		} else {
-			const newUser = new User({name, password, email: emailNormalized});
+			const newUser = new User({name: name.trim(), password, email: emailNormalized});
 			newUser.save(err => {
 				if(err) {
 					res.status(500).json({message: {msgBody: "Error has occurred during registration", msgError: true}});
@@ -73,7 +73,7 @@ userRouter.post("/login", passport.authenticate("local", {session: false}), (req
 	}
 });
 
-userRouter.get("/logout", passport.authenticate("jwt", {session: false}), (req, res) => {
+userRouter.get("/logout", (req, res) => {
 	res.clearCookie("access_token");
 	res.json({user: {name: "", email: ""}, success: true});
 });
@@ -81,6 +81,62 @@ userRouter.get("/logout", passport.authenticate("jwt", {session: false}), (req, 
 userRouter.get("/authenticated", passport.authenticate("jwt", {session: false}), (req, res) => {
 	const { name, email } = req.user;
 	res.status(200).json({isAuthenticated: true, user: {name, email}});
+});
+
+userRouter.post("/updateProfile", passport.authenticate("jwt", {session: false}), (req, res) => {
+	const { email } = req.user;
+	User.findOneAndUpdate({email}, {$set: req.body}, { new: true }, (err, user) => {
+		if(err) {
+			res.status(500).json({message: {msgBody: "Error attempting to update user profile", msgError: true}});
+		} else if(user) {
+			const { name, email }= user;
+			res.status(200).json({
+				isAuthenticated: true,
+				user: {name, email},
+				message: {msgBody: "Successfully updated user profile", msgError: false}
+			});
+		} else {
+			res.status(400).json({message: {msgBody: "Something went wrong while updating user profile", msgError: true}});
+		}
+	});
+});
+
+userRouter.post("/changePassword", passport.authenticate("jwt", {session: false}), (req, res) => {
+	const { email } = req.user;
+	const { originalPassword, newPassword } = req.body;
+	User.findOne({email} ,(err, user) => {
+		if(err) {
+			res.status(500).json({message: {msgBody: "Error attempting to change user's password", msgError: true}});
+		} else if(user) {
+			user.comparePassword(originalPassword, (compareError, isMatch) => { //verify given original password matches stored password
+				if(compareError) {
+					res.status(500).json({message: {msgBody: "Error attempting to change user's password", msgError: true}});
+				} else if(isMatch === false) { //Passwords do not match
+					res.status(403).json({message: {msgBody: "Original password is incorrect. Please try again.", msgError: true}});
+				} else {
+					user.comparePassword(newPassword, (newPassError, isMatch) => { //Check if new password matches original password
+						if(newPassError) {
+							res.status(500).json({message: {msgBody: "Error attempting to change user's password", msgError: true}});
+						} else if(isMatch === false) { //New password does not match original password => Update password
+							var updatedUser = req.user;
+							updatedUser.password = newPassword;
+							updatedUser.save(err => {
+								if(err) {
+									res.status(500).json({message: {msgBody: "Error has occurred while updating user's password", msgError: true}});
+								} else { //Password was succesfully updated
+									res.status(200).json({message: {msgBody: "Successfully updated user's password", msgError: false}});
+								}
+							});
+						} else { //New password matches original password => Do not update password => send error
+							res.status(400).json({message: {msgBody: "New password must not match the original password", msgError: true}});
+						}
+					});
+				}
+			});
+		} else {
+			res.status(400).json({message: {msgBody: "Something went wrong while changing user's password", msgError: true}});
+		}
+	});
 });
 
 userRouter.post("/todo", passport.authenticate("jwt", {session: false}), (req, res) => {

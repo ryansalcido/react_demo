@@ -1,11 +1,11 @@
 import React, { useState, useRef, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import useGetPokemon from "../../utils/useGetPokemon";
+import useGetPokemon from "./useGetPokemon";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Fab from "@material-ui/core/Fab";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
-import ScrollTop from "../ScrollTop";
+import ScrollTop from "../shared/ScrollTop";
 import PokemonCard from "./PokemonCard";
 
 const useStyles = makeStyles((theme) => ({

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useLayoutEffect } from "react";
+import React, { Fragment, useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import AddCircleOutlineOutlinedIcon from "@material-ui/icons/AddCircleOutlineOutlined";
@@ -17,6 +17,10 @@ import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import TodoEditDialog from "./TodoEditDialog";
+import AuthService from "../../Services/AuthService";
+import { AuthContext } from "../../Context/AuthContext";
+import { useHistory } from "react-router-dom";
+import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
@@ -46,8 +50,12 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const Todo = () => {
+const Todo = (props) => {
+	const { todos } = props;
 	const classes = useStyles();
+
+	const history = useHistory();
+	const { setUser, setIsAuthenticated } = useContext(AuthContext);
 
 	const [ isLoading, setIsLoading ] = useState(false);
 	const [ todo, setTodo ] = useState("");
@@ -55,10 +63,9 @@ const Todo = () => {
 	const [ selectedTodo, setSelectedTodo ] = useState({});
 	const [ openEditDialog, setOpenEditDialog ] = useState(false);
 
-	useLayoutEffect(() => {
-		setIsLoading(true);
-		updateTodoList();
-	}, []);
+	useEffect(() => {
+		setTodoList(todos);
+	}, [todos]);
 
 	const updateTodoList = () => {
 		TodoService.getTodos().then(data => {
@@ -66,9 +73,25 @@ const Todo = () => {
 			if(isAuthenticated && todos) {
 				setTodoList(todos);
 				setIsLoading(false);
+			} else if(isAuthenticated === false) {
+				setIsLoading(false);
+				handleLogout();
 			} else {
 				setIsLoading(false);
 			}
+		});
+	};
+
+	const handleLogout = () => {
+		AuthService.logout().then(data => {
+			if(data.success) {
+				toast.info("Session has expired. Please log back in.");
+				setUser(data.user);
+				setIsAuthenticated(false);
+			} else {
+				toast.error("Error occurred due to expired sesion.");
+			}
+			history.push("/login");
 		});
 	};
 
@@ -80,6 +103,8 @@ const Todo = () => {
 			if(isAuthenticated && message) {
 				setTodo("");
 				updateTodoList();
+			} else if(isAuthenticated === false) {
+				handleLogout();
 			} else {
 				toast.error("Unable to create todo. Please try again.");
 				setIsLoading(false);
@@ -94,6 +119,8 @@ const Todo = () => {
 			const { isAuthenticated, message } = data;
 			if(isAuthenticated && message) {
 				updateTodoList();
+			} else if(isAuthenticated === false) {
+				handleLogout();
 			} else {
 				toast.error("Unable to delete todo. Please try again.");
 				setIsLoading(false);
@@ -108,7 +135,7 @@ const Todo = () => {
 			</Backdrop>
 
 			<TodoEditDialog todo={selectedTodo} updateTodoList={updateTodoList} setIsLoading={setIsLoading}
-				openEditDialog={openEditDialog} setOpenEditDialog={setOpenEditDialog} />
+				openEditDialog={openEditDialog} setOpenEditDialog={setOpenEditDialog} handleLogout={handleLogout} />
 
 			<Grid container spacing={1}>
 				<Grid item xs={12} md={9} lg={7}>
@@ -154,6 +181,14 @@ const Todo = () => {
 			</Grid>
 		</div>
 	);
+};
+
+Todo.propTypes = {
+	todos: PropTypes.array
+};
+
+Todo.defaultProps = {
+	todos: []
 };
 
 export default Todo;

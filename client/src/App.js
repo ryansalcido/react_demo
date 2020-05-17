@@ -7,6 +7,7 @@ import Home from "./Components/Home";
 import Register from "./Components/Register";
 import Login from "./Components/Login";
 import Dashboard from "./Components/Dashboard";
+import ManageProfile from "./Components/ManageProfile/ManageProfile";
 import NotFound from "./Components/NotFound";
 import PrivateRoute from "./hocs/PrivateRoute";
 import UnPrivateRoute from "./hocs/UnPrivateRoute";
@@ -52,6 +53,7 @@ function App() {
 						<UnPrivateRoute exact path="/login" component={Login} />
 						<UnPrivateRoute exact path="/register" component={Register} />
 						<PrivateRoute exact path="/dashboard" component={Dashboard} />
+						<PrivateRoute exact path="/profile" component={ManageProfile} />
 						<Route path ="/not-found" component={NotFound} />
 						<Redirect to="/not-found" />
 					</Switch>

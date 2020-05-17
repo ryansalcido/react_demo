@@ -42,5 +42,32 @@ export default {
 			headers: { "Content-Type": "application/json" }
 		}).then(res => res.json())
 			.then(data => data);
+	},
+	updateProfile: (user) => {
+		return fetch("/user/updateProfile", {
+			method: "post",
+			body: JSON.stringify(user),
+			headers: { "Content-Type": "application/json" }
+		})
+			.then(res => {
+				if(res.status !== 401) {
+					return res.json().then(data => data);
+				} else {
+					return {isAuthenticated: false, user: {name: "", email: ""}};
+				}
+			});
+	},
+	changePassword: (passwords) => {
+		return fetch("/user/changePassword", {
+			method: "post",
+			body: JSON.stringify(passwords),
+			headers: { "Content-Type": "application/json" }
+		}).then(res => {
+			if(res.status !== 401) {
+				return res.json().then(data => data);
+			} else {
+				return {isAuthenticated: false, user: {name: "", email: ""}};
+			}
+		});
 	}
 };

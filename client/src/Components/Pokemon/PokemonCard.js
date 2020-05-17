@@ -38,9 +38,14 @@ const PokemonCard = (props) => {
 	const classes = useStyles();
 
 	useEffect(() => {
+		let isCanceled = false;
 		PokemonService.getPokemonSpecies(pokemon.species.url).then(data => {
-			setSpecies(data);
+			if(!isCanceled) {
+				setSpecies(data);
+			}
 		});
+
+		return () => isCanceled = true;
 	}, [pokemon.species.url]);
 
 	const formatPokemonName = (name) => {

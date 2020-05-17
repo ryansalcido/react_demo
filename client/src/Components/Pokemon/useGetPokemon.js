@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PokemonService from "../Services/PokemonService";
+import PokemonService from "../../Services/PokemonService";
 
 function useGetPokemon(currentUrl) {
 	const [ isLoading, setIsLoading ] = useState(false);
