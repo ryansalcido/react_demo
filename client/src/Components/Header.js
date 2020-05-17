@@ -4,14 +4,13 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import { Link } from "react-router-dom";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { AuthContext } from "../Context/AuthContext";
-import AuthService from "../Services/AuthService";
-import Switch from "@material-ui/core/Switch";
 import PropTypes from "prop-types";
 import WbSunnyOutlinedIcon from "@material-ui/icons/WbSunnyOutlined";
 import Brightness3OutlinedIcon from "@material-ui/icons/Brightness3Outlined";
-import { toast } from "react-toastify";
+import ThemeSwitch from "./shared/ThemeSwitch";
+import AuthenticatedHeader from "./AuthenticatedHeader";
 
 const useStyles = makeStyles((theme) => ({
 	appBar: {
@@ -22,79 +21,10 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const ThemeSwitch = withStyles((theme) => ({
-	root: {
-		width: 42,
-		height: 26,
-		padding: 0,
-		margin: "6px 8px"
-	},
-	switchBase: {
-		padding: 1,
-		"& + $track": {
-			backgroundColor: "lightskyblue",
-			opacity: 1,
-			border: "none"
-		},
-		"&$checked": {
-			transform: "translateX(16px)",
-			color: theme.palette.common.white,
-			"& + $track": {
-				backgroundColor: "darkslategrey",
-				opacity: 1,
-				border: "none"
-			}
-		},
-		"&$focusVisible $thumb": {
-			color: "#52d869",
-			border: "6px solid #fff"
-		}
-	},
-	thumb: {
-		width: 24,
-		height: 24
-	},
-	track: {
-		borderRadius: 13,
-		border: `1px solid ${theme.palette.grey[400]}`,
-		backgroundColor: theme.palette.grey[50],
-		opacity: 1,
-		transition: theme.transitions.create(["background-color", "border"])
-	},
-	checked: {},
-	focusVisible: {}
-}))(({ classes, ...props }) => {
-	return (
-		<Switch
-			focusVisibleClassName={classes.focusVisible}
-			classes={{
-				root: classes.root,
-				switchBase: classes.switchBase,
-				thumb: classes.thumb,
-				track: classes.track,
-				checked: classes.checked
-			}}
-			{...props}
-		/>
-	);
-});
-
 const Header = (props) => {
 	const classes = useStyles();
-	const { setUser, isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+	const { isAuthenticated } = useContext(AuthContext);
 	const { themeType, toggleDarkTheme } = props;
-
-	const onClickLogoutHandler = () => {
-		AuthService.logout().then(data => {
-			if(data.success) {
-				toast.info("Successfully logged out");
-				setUser(data.user);
-				setIsAuthenticated(false);
-			} else {
-				toast.error("Error occurred attempting to logout");
-			}
-		});
-	};
 
 	const unauthenticatedHeader = () => {
 		return (
@@ -105,25 +35,16 @@ const Header = (props) => {
 		);
 	};
 
-	const authenticatedHeader = () => {
-		return (
-			<Fragment>
-				<Button component={Link} to={"/dashboard"}>Dashboard</Button>
-				<Button onClick={onClickLogoutHandler}>logout</Button>
-			</Fragment>
-		);
-	};
-
 	return (
 		<AppBar color="primary" position="static" className={classes.appBar} id="back-to-top-anchor">
 			<Toolbar className={classes.toolbar}>
-				<Grid container alignItems="flex-start" justify="flex-end" direction="row">
+				<Grid container alignItems="center" justify="flex-end" direction="row">
 					<ThemeSwitch checked={themeType === "dark"} onChange={() => toggleDarkTheme()} 
 						icon={<WbSunnyOutlinedIcon style={{ color: "yellow" }} />} 
 						checkedIcon={<Brightness3OutlinedIcon />}
 					/>
 					<Button component={Link} to={"/"}>home</Button>
-					{isAuthenticated ? authenticatedHeader() : unauthenticatedHeader()}
+					{isAuthenticated ? <AuthenticatedHeader /> : unauthenticatedHeader()}
 				</Grid>
 			</Toolbar>
 		</AppBar>

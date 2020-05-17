@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TodoEditDialog = (props) => {
 	const classes = useStyles();
-	const { todo, updateTodoList, setIsLoading, openEditDialog, setOpenEditDialog } = props;
+	const { todo, updateTodoList, setIsLoading, openEditDialog, setOpenEditDialog, handleLogout } = props;
 	
 	const [ newTodoName, setNewTodoName ] = useState("");
 
@@ -36,6 +36,8 @@ const TodoEditDialog = (props) => {
 			if(isAuthenticated && message) {
 				setNewTodoName("");
 				updateTodoList();
+			} else if(isAuthenticated === false) {
+				handleLogout();
 			} else {
 				toast.error("Unable to update todo. Please try again.");
 				setIsLoading(false);
@@ -67,7 +69,12 @@ TodoEditDialog.propTypes = {
 	updateTodoList: PropTypes.func.isRequired,
 	setIsLoading: PropTypes.func.isRequired,
 	openEditDialog: PropTypes.bool.isRequired,
-	setOpenEditDialog: PropTypes.func.isRequired
+	setOpenEditDialog: PropTypes.func.isRequired,
+	handleLogout: PropTypes.func
+};
+
+TodoEditDialog.defaultProps = {
+	handleLogout: () => {}
 };
 
 export default TodoEditDialog;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -12,6 +12,10 @@ import WeatherService from "../../Services/WeatherService";
 import WeatherCard from "./WeatherCard";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import ToggleButton from "@material-ui/lab/ToggleButton";
+import AuthService from "../../Services/AuthService";
+import { AuthContext } from "../../Context/AuthContext";
+import { useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -35,6 +39,9 @@ const useStyles = makeStyles((theme) => ({
 
 const Weather = () => {
 	const classes = useStyles();
+
+	const history = useHistory();
+	const { setUser, setIsAuthenticated } = useContext(AuthContext);
 
 	const [ location, setLocation ] = useState("");
 	const [ forecast, setForecast ] = useState({});
@@ -72,8 +79,19 @@ const Weather = () => {
 	const getWeatherInfo = (e) => {
 		e.preventDefault();
 		WeatherService.getWeatherForecast({location}).then(data => {
-			const { message, weatherForecast, location } = data;
-			if(message.msgError === true) {
+			const { message, weatherForecast, location, isAuthenticated } = data;
+			if(isAuthenticated === false) {
+				AuthService.logout().then(data => {
+					if(data.success) {
+						toast.info("Session has expired. Please log back in.");
+						setUser(data.user);
+						setIsAuthenticated(false);
+					} else {
+						toast.error("Error occurred due to expired sesion.");
+					}
+					history.push("/login");
+				});
+			} else if(message.msgError === true) {
 				setForecast({});
 				setMessage(message);
 			} else {
