@@ -11,7 +11,7 @@ const signToken = (userID) => {
 	return JWT.sign({
 		iss: "RyanMERN",
 		sub: userID
-	}, process.env.SECRET_OR_KEY, {expiresIn: "1h"});
+	}, process.env.SECRET_OR_KEY, {expiresIn: "5s"});
 };
 
 const isFieldValid = (value) => {
@@ -68,13 +68,16 @@ userRouter.post("/login", passport.authenticate("local", {session: false}), (req
 	if(req.isAuthenticated()) {
 		const { _id, name, email } = req.user;
 		const token = signToken(_id);
+		const refreshToken = JWT.sign({iss: "RyanMERN", sub: _id}, process.env.REFRESH_TOKEN_SECRET);
 		res.cookie("access_token", token, {httpOnly: true, sameSite: true});
+		res.cookie("refresh_token", refreshToken, {httpOnly: true, sameSite: true});
 		res.status(200).json({isAuthenticated: true, user: {name, email}});
 	}
 });
 
 userRouter.get("/logout", (req, res) => {
 	res.clearCookie("access_token");
+	res.clearCookie("refresh_token");
 	res.json({user: {name: "", email: ""}, success: true});
 });
 

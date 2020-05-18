@@ -7,17 +7,24 @@ function useGetPokemon(currentUrl) {
 	const [ nextUrl, setNextUrl ] = useState(null);
 
 	useEffect(() => {
+		let isCanceled = false;
 		setIsLoading(true);
 		PokemonService.getPokemon(currentUrl).then(data => {
 			const { next, results } = data;
-			setNextUrl(next);
+			if(!isCanceled) {
+				setNextUrl(next);
 
-			Promise.all(results.map(p => PokemonService.getPokemonInfo(p.url).then(info => info)
-			)).then(res => {
-				setPokemon(prevPokemon => [ ...prevPokemon, ...res ]);
-				setIsLoading(false);
-			});
+				Promise.all(results.map(p => PokemonService.getPokemonInfo(p.url).then(info => info)
+				)).then(res => {
+					if(!isCanceled) {
+						setPokemon(prevPokemon => [ ...prevPokemon, ...res ]);
+						setIsLoading(false);
+					}
+				});
+			}
 		});
+
+		return () => isCanceled = true;
 	}, [currentUrl]);
 
 	return { isLoading, pokemon, nextUrl };

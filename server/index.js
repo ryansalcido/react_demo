@@ -7,6 +7,7 @@ const weatherRouter = require("./routes/weather");
 const spotifyRouter = require("./routes/spotify");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const validateToken = require("./routes/validateToken");
 
 app.disable("x-powered-by");
 app.use(cookieParser());
@@ -23,6 +24,8 @@ db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected to database"));
 
 app.use(express.json());
+
+app.use(validateToken);
 
 app.use("/user", userRouter);
 app.use("/weather", weatherRouter);
