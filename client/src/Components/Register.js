@@ -14,9 +14,10 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
-import AuthService from "../Services/AuthService";
-import PropTypes from "prop-types";
 import { toast } from "react-toastify";
+import { useHistory } from "react-router-dom";
+import axios from "axios";
+import { useForm, validateEmail, validateName } from "../hooks/useForm";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -33,80 +34,65 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const Register = (props) => {
+const Register = () => {
 	const classes = useStyles();
 
-	const requiredError = { msgBody: "This field is required", msgError: true };
-	const [ name, setName ] = useState("");
-	const [ email, setEmail ] = useState("");
-	const [ password, setPassword ] = useState("");
-	const [ showPassword, setShowPassword ] = useState(false);
-	const [ errors, setErrors ] = useState({
-		name: { msgBody: "", msgError: false},
-		email: { msgBody: "", msgError: false},
-		password: { msgBody: "", msgError: false}
-	});
-
-	const onSubmit = (e) => {
-		e.preventDefault();
+	const registerUser = () => {
 		if(isFormValid) {
-			AuthService.register({name, email, password}).then(data => {
-				const { message } = data;
-				if(!message.msgError) {
+			const { name, email, password } = form;
+			axios.post("/user/register", {name, email, password}).then(res => {
+				const { message } = res.data;
+				if(message && message.msgError === false) {
 					toast.success("Successfully created account");
-					props.history.push("/login");
-				} else {
-					toast.error("Error creating account. Please try again.");
+					history.push("/login");
 				}
+			}).catch(error => {
+				toast.error("Error creating account. Please try again.");	
 			});
 		} else {
 			toast.error("Please fix errors");
 		}
 	};
 
+	const history = useHistory();
+	const [ form, setForm, handleChange, handleSubmit ] = 
+		useForm({name: "", email: "", password: "", showPassword: false}, registerUser);
+
+	const [ errors, setErrors ] = useState({
+		name: { msgBody: "", msgError: false},
+		email: { msgBody: "", msgError: false},
+		password: { msgBody: "", msgError: false}
+	});
+
 	const isFormValid = () => {
-		return (name !== "" && !errors.name.msgError) 
-			&& (email !== "" && !errors.email.msgError) 
-			&& (password !== "" && !errors.password.msgError);
+		return (form.name !== "" && !errors.name.msgError) 
+			&& (form.email !== "" && !errors.email.msgError) 
+			&& (form.password !== "" && !errors.password.msgError);
 	};
 
-	const validateName = () => {
-		setErrors({
-			...errors,
-			name: /^[\w\-\s]+$/.test(name) ? { msgBody: "", msgError: false} : { msgBody: "Valid characters are A-Z a-z 0-9 _ -", msgError: true }
-		});
+	const checkName = () => {
+		setErrors(error => ({...error, name: validateName(form.name)}));
 	};
 
-	const validateEmail = () => {
-		const normalized = email.trim().toLowerCase();
-		if(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(normalized)) {
-			AuthService.validateEmail({email: normalized}).then(data => {
-				const { message } = data;
-				setErrors({
-					...errors,
-					email: message.msgError === true ? message : { msgBody: "", msgError: false }
-				});
-			});
-		} else {
-			setErrors({
-				...errors,
-				email: { msgBody: "Invalid email address format", msgError: true }
-			});
-		}
+	const checkEmail = () => {
+		validateEmail(form.email).then(data => {
+			setErrors(error => ({...error, email: data}));
+		}).catch(error => {});
 	};
 
 	const validatePassword = () => {
-		setErrors({
-			...errors,
-			password: password.length < 8 ? { msgBody: "Password must be at least 8 characters", msgError: true } : { msgBody: "", msgError: false}
-		});
+		setErrors(error => ({
+			...error, 
+			password: form.password.length < 8
+				? { msgBody: "Password must be at least 8 characters", msgError: true } 
+				: { msgBody: "", msgError: false}}));
 	};
 
 	return (
 		<div className={classes.root}>
 			<Typography variant="h4" color="secondary" align="center">Register</Typography>
 
-			<form className={classes.form} onSubmit={onSubmit}>
+			<form className={classes.form} onSubmit={handleSubmit}>
 				<Grid container direction="column" spacing={2}>
 					<Grid container item justify="center">
 						<Avatar className={classes.avatar}>
@@ -115,14 +101,13 @@ const Register = (props) => {
 					</Grid>
 					<Grid container item justify="center">
 						<Grid item xs={11} sm={7} md={5} lg={3}>
-							<TextField value={name} variant="outlined" fullWidth autoFocus required 
-								id="name" label="Name" name="name"
-								onChange={(event) => setName(event.target.value)} onBlur={() => validateName()}
+							<TextField value={form.name} variant="outlined" fullWidth autoFocus required 
+								id="name" label="Name" name="name" onChange={handleChange} onBlur={checkName}
 								error={errors.name.msgError} helperText={errors.name.msgBody}
 								InputProps={{ endAdornment: (
 									<InputAdornment position="end">
-										<IconButton edge="end" onClick={() => {setName(""); setErrors({...errors, name: requiredError}); }}>
-											{name !== "" && <ClearIcon />}
+										<IconButton edge="end" onClick={() => setForm(form => ({...form, name: ""}))}>
+											{form.name !== "" && <ClearIcon />}
 										</IconButton>
 									</InputAdornment>
 								)}} />
@@ -130,14 +115,13 @@ const Register = (props) => {
 					</Grid>
 					<Grid container item justify="center">
 						<Grid item xs={11} sm={7} md={5} lg={3}>
-							<TextField value={email} variant="outlined" fullWidth required 
-								id="email" label="Email address" name="email" type="email"
-								onChange={(event) => setEmail(event.target.value)} onBlur={() => validateEmail()}
+							<TextField value={form.email} variant="outlined" fullWidth required  onBlur={checkEmail}
+								id="email" label="Email address" name="email" type="email" onChange={handleChange}
 								error={errors.email.msgError} helperText={errors.email.msgBody}
 								InputProps={{ endAdornment: (
 									<InputAdornment position="end">
-										<IconButton edge="end" onClick={() => {setEmail(""); setErrors({...errors, email: requiredError}); }}>
-											{email !== "" && <ClearIcon />}
+										<IconButton edge="end" onClick={() => setForm(form => ({...form, email: ""}))}>
+											{form.email !== "" && <ClearIcon />}
 										</IconButton>
 									</InputAdornment>
 								)}} />
@@ -145,17 +129,16 @@ const Register = (props) => {
 					</Grid>
 					<Grid container item justify="center">
 						<Grid item xs={11} sm={7} md={5} lg={3}>
-							<TextField value={password} variant="outlined" fullWidth required 
-								id="password" label="Password" name="email" type={showPassword ? "text" : "password"}
-								onChange={(event) => setPassword(event.target.value)} onBlur={() => validatePassword()}
-								error={errors.password.msgError} helperText={errors.password.msgBody}
+							<TextField value={form.password} variant="outlined" fullWidth required onChange={handleChange}
+								id="password" label="Password" name="password" type={form.showPassword ? "text" : "password"}
+								error={errors.password.msgError} helperText={errors.password.msgBody} onBlur={validatePassword}
 								InputProps={{ endAdornment: (
 									<InputAdornment position="end">
-										<IconButton edge="end" onClick={() => {setPassword(""); setErrors({...errors, password: requiredError}); }}>
-											{password !== "" && <ClearIcon />}
+										<IconButton edge="end" onClick={() => setForm(form => ({...form, password: ""}))}>
+											{form.password !== "" && <ClearIcon />}
 										</IconButton>
-										<IconButton edge="end" onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+										<IconButton edge="end" onClick={() => setForm(form => ({...form, "showPassword": !form.showPassword}))}>
+											{form.showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
 										</IconButton>
 									</InputAdornment>
 								)}} />
@@ -163,20 +146,20 @@ const Register = (props) => {
 					</Grid>
 					<Grid container item justify="center" className={classes.pwStrengthMeter}>
 						<Grid item xs={11} sm={7} md={5} lg={3}>
-							<PasswordStrengthMeter password={password} />
+							<PasswordStrengthMeter password={form.password} />
 						</Grid>
 					</Grid>
 					<Grid container item justify="center">
 						<Grid item xs={11} sm={7} md={5} lg={3} align="right">
-							<Button variant="contained" fullWidth color="primary" type="submit" 
-								startIcon={<CreateIcon />} onClick={onSubmit} disabled={!isFormValid()}>
+							<Button variant="contained" fullWidth color="primary" type="submit" disabled={!isFormValid()}
+								startIcon={<CreateIcon />} onClick={handleSubmit}> 
 								register
 							</Button>
 						</Grid>
 					</Grid>
 					<Grid container item justify="center">
 						<Grid item xs={6} md={4} lg={2} align="center">
-							<Link variant="body2" color="secondary" component="button" onClick={() => {props.history.push("/login");}}>
+							<Link variant="body2" color="secondary" component="button" onClick={() => {history.push("/login");}}>
 								{"Already have an account? Sign in"}
 							</Link>
 						</Grid>
@@ -185,10 +168,6 @@ const Register = (props) => {
 			</form>
 		</div>
 	);
-};
-
-Register.propTypes = {
-	history: PropTypes.object.isRequired
 };
 
 export default Register;

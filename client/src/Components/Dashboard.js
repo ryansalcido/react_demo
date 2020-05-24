@@ -1,43 +1,19 @@
-import React, { Fragment, useState, useEffect } from "react";
-import Todo from "./Todo/Todo";
+import React, { Fragment } from "react";
+import Todo from "./Todo/TodoView";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import TabPanel from "./shared/TabPanel";
 import Weather from "./Weather/Weather";
 import Spotify from "./Spotify/Spotify";
 import Pokemon from "./Pokemon/Pokemon";
-import TodoService from "../Services/TodoService";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const Dashboard = () => {
-	const [ value, setValue ] = useState(0);
-	const [ isLoading, setIsLoading ] = useState(true);
-	const [ todos, setTodos ] = useState([]);
+	const [ value, setValue ] = useLocalStorage("selectedTab", 0);
 
 	const handleChange = (event, newValue) => {
 		setValue(newValue);
-		localStorage.setItem("selectedTab", newValue);
 	};
-
-	useEffect(() => {
-		setIsLoading(true);
-		if(localStorage.getItem("selectedTab")) {
-			setValue(parseInt(localStorage.getItem("selectedTab")));
-		}
-		setIsLoading(false);
-	}, []);
-
-	useEffect(() => {
-		setIsLoading(true);
-		if(value === 0) {
-			TodoService.getTodos().then(data => {
-				const { isAuthenticated, todos } = data;
-				if(isAuthenticated && todos) {
-					setTodos(todos);
-				}
-			});
-		}
-		setIsLoading(false);
-	}, [value]);
 
 	return (
 		<Fragment>
@@ -48,9 +24,9 @@ const Dashboard = () => {
 				<Tab label="Pokemon" />
 			</Tabs>
 
-			{!isLoading && <Fragment>
+			<Fragment>
 				<TabPanel value={value} index={0}>
-					<Todo todos={todos} />
+					<Todo />
 				</TabPanel>
 				<TabPanel value={value} index={1}>
 					<Weather />
@@ -61,7 +37,7 @@ const Dashboard = () => {
 				<TabPanel value={value} index={3}>
 					<Pokemon />
 				</TabPanel>
-			</Fragment>}
+			</Fragment>
 
 		</Fragment>
 	);

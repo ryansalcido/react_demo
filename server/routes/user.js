@@ -22,6 +22,10 @@ const isFieldValid = (value) => {
 	}
 };
 
+const getUserTodos = async (_id) => {
+	return await User.findOne({_id}).populate("todos").exec();
+};
+
 userRouter.post("/validateEmail", (req, res) => {
 	const { email } = req.body;
 	if(!email) {
@@ -150,7 +154,11 @@ userRouter.post("/todo", passport.authenticate("jwt", {session: false}), (req, r
 				if(err) {
 					res.status(500).json({message : {msgBody : "Error has occurred while creating todo", msgError: true}});
 				} else {
-					res.status(201).json({isAuthenticated : true, message : {msgBody : "Successfully created todo", msgError: false}});
+					getUserTodos(req.user._id).then(document => {
+						res.status(201).json({todos: document.todos, isAuthenticated : true, message : {msgBody : "Successfully created todo", msgError: false}});
+					}).catch(error => {
+						res.status(500).json({message : {msgBody : "Error has occurred while retreiving updated list", msgError: true}});
+					});
 				}
 			});
 		}
@@ -158,12 +166,10 @@ userRouter.post("/todo", passport.authenticate("jwt", {session: false}), (req, r
 });
 
 userRouter.get("/todos", passport.authenticate("jwt", {session: false}), (req, res) => {
-	User.findOne({_id: req.user._id}).populate("todos").exec((err, document) => {
-		if(err) {
-			res.status(500).json({message : {msgBody : "Error has occurred while retreiving todos", msgError: true}});
-		} else {
-			res.status(200).json({todos : document.todos, isAuthenticated : true, message: {msgBody : "Successfully retreived todos", msgError: false}});
-		}
+	getUserTodos(req.user._id).then(document => {
+		res.status(200).json({todos : document.todos, isAuthenticated : true, message: {msgBody : "Successfully retreived todos", msgError: false}});
+	}).catch(error => {
+		res.status(500).json({message : {msgBody : "Error has occurred while retreiving todos", msgError: true}});
 	});
 });
 
@@ -173,7 +179,11 @@ userRouter.post("/deleteTodo", passport.authenticate("jwt", {session: false}), (
 		if(err) {
 			res.status(500).json({message: {msgBody: "Error has occurred while removing todo", msgError: true}});
 		} else {
-			res.status(200).json({isAuthenticated : true, message: {msgBody: "Successfully deleted todo", msgError: false}});
+			getUserTodos(req.user._id).then(document => {
+				res.status(200).json({todos: document.todos, isAuthenticated : true, message: {msgBody: "Successfully deleted todo", msgError: false}});
+			}).catch(error => {
+				res.status(500).json({message : {msgBody : "Error has occurred while retreiving updated list", msgError: true}});
+			});
 		}
 	});
 });
@@ -184,11 +194,13 @@ userRouter.post("/updateTodo", passport.authenticate("jwt", {session: false}), (
 		if(err) {
 			res.status(500).json({message: {msgBody: "Error has occurred while updating todo", msgError: true}});
 		} else {
-			res.status(200).json({isAuthenticated : true, message: {msgBody: "Successfully updated todo", msgError: false}});
+			getUserTodos(req.user._id).then(document => {
+				res.status(200).json({todos: document.todos, isAuthenticated : true, message: {msgBody: "Successfully updated todo", msgError: false}});
+			}).catch(error => {
+				res.status(500).json({message : {msgBody : "Error has occurred while retreiving updated list", msgError: true}});
+			});
 		}
 	});
 });
-
-
 
 module.exports = userRouter;

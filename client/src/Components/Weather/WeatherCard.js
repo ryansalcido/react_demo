@@ -6,8 +6,8 @@ import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
-import withWidth, { isWidthUp } from "@material-ui/core/withWidth";
-import moment from "moment";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { formatDate } from "./helpers";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -36,23 +36,16 @@ const useStyles = makeStyles((theme) => ({
 
 const WeatherCard = (props) => {
 	const classes = useStyles();
-	const { forecast, tempScale, width } = props;
+	const { forecast, tempScale } = props;
 	const [ selectedForecast, setSelectedForecast ] = useState({});
+	const atLeastSmWith = useMediaQuery(theme => theme.breakpoints.up("sm"));
 
 	useEffect(() => {
 		setSelectedForecast(forecast.list[0]);
 	}, [forecast]);
 
-	const formatDate = (date, format) => {
-		return moment.unix(date).format(format);
-	};
-
 	const handleWeatherDayClick = (reading, idx) => {
 		setSelectedForecast(reading);
-	};
-
-	const isWidthAtLeastSmall = () => {
-		return isWidthUp("sm", width);
 	};
 
 	return (
@@ -60,11 +53,11 @@ const WeatherCard = (props) => {
 			{selectedForecast.dt && forecast.city && forecast.list &&
 			<Paper className={classes.root}>
 				<Grid container spacing={1}>
-					<Grid item xs={12} sm={6} className={isWidthAtLeastSmall() ? classes.weatherMainContainer : null}>
+					<Grid item xs={12} sm={6} className={atLeastSmWith ? classes.weatherMainContainer : null}>
 						<Typography variant="h6">{forecast.location}</Typography>
 						<Typography variant="body1">{formatDate(selectedForecast.dt, "dddd, MMMM Do, YYYY")}</Typography>
 						<Typography variant="body1">{selectedForecast.weather[0].main}</Typography>
-						<Grid container item justify="flex-start">
+						<Grid container item alignItems="center">
 							<Grid item>
 								<img src={`https://openweathermap.org/img/wn/${selectedForecast.weather[0].icon}@2x.png`} 
 									alt="Weather" width="100" height="100" />
@@ -89,7 +82,7 @@ const WeatherCard = (props) => {
 						}
 					</Grid>
 					<Grid item xs={12} sm={6} className={classes.dailyForecastGrid}>
-						{!isWidthAtLeastSmall() && <Divider />}
+						{!atLeastSmWith && <Divider />}
 						{forecast.list.map((reading, idx) => {
 							return (
 								<Fragment key={`reading-${idx}`}>
@@ -123,8 +116,7 @@ const WeatherCard = (props) => {
 
 WeatherCard.propTypes = {
 	forecast: PropTypes.object.isRequired,
-	tempScale: PropTypes.string.isRequired,
-	width: PropTypes.string.isRequired
+	tempScale: PropTypes.string.isRequired
 };
 
-export default withWidth()(WeatherCard);
+export default WeatherCard;

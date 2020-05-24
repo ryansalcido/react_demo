@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import AuthService from "../../Services/AuthService";
 import { AuthContext } from "../../Context/AuthContext";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { toast } from "react-toastify";
 import clsx from "clsx";
-import PropTypes from "prop-types";
+import axios from "axios";
+import { useForm, validateEmail, validateName } from "../../hooks/useForm";
 
 const useStyles = makeStyles((theme) => ({
 	updateProfileButton: {
@@ -18,27 +18,47 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const EditBasicInfo = (props) => {
+const EditBasicInfo = () => {
 	const classes = useStyles();
 
-	const { handleLogout } = props;
-	const { user, setUser, setIsAuthenticated } = useContext(AuthContext);
+	const updateProfile = () => {
+		const { name, email} = form;
+		if(errors.name.msgError === false && errors.email.msgError === false && isProfileFormValid()) {
+			axios.post("/user/updateProfile", {email, name: name.trim()}).then(res => {
+				const { user, isAuthenticated, message } = res.data;
+				if(isAuthenticated && user) {
+					manageUserSession(user, isAuthenticated);
+					toast.success(message.msgBody);
+				}
+			}).catch(error => {
+				if(error.response && error.response.status === 401) {
+					manageUserSession({name: "", email: ""}, false);
+					toast.info("Session has timed out");
+				} else {
+					toast.error("Unable to update profile. Please try again.");
+				}
+			});
+		} else {
+			toast.error("Please fix errors before continuing.");
+		}
+	};
 
-	const [ name, setName ] = useState("");
-	const [ email, setEmail ] = useState("");
+	const { user, manageUserSession  } = useContext(AuthContext);
+	const [form, setForm, handleChange, handleSubmit ] = useForm({name: "", email: ""}, updateProfile);
+
 	const [ errors, setErrors ] = useState({
 		name: {msgBody: "", msgError: false},
 		email: {msgBody: "", msgError: false}
 	});
 
+	//Referencing setForm as a dependency to prevent dependency warning
+	//This is okay because the setForm function does not change on re-renders
 	useEffect(() => {
-		setName(user.name);
-		setEmail(user.email);
-	}, [user]);
+		setForm(user);
+	}, [user, setForm]);
 
 	const resetProfile = () => {
-		setName(user.name);
-		setEmail(user.email);
+		setForm({name: user.name, email: user.email});
 		setErrors({
 			name: {msgBody: "", msgError: false},
 			email: {msgBody: "", msgError: false}
@@ -46,62 +66,25 @@ const EditBasicInfo = (props) => {
 	};
 
 	const isProfileFormValid = () => {
-		return (name !== "" && email !== "") && (user.name !== name || user.email !== email);
+		return (form.name !== "" && form.email !== "") && (user.name !== form.name || user.email !== form.email);
 	};
 
-	const updateProfile = () => {
-		if(errors.name.msgError === false && errors.email.msgError === false && isProfileFormValid()) {
-			AuthService.updateProfile({email, name: name.trim()}).then(data => {
-				const { user, isAuthenticated, message } = data;
-				if(isAuthenticated === false) {
-					handleLogout();
-				} else if(message.msgError === false) {
-					setUser(user);
-					setIsAuthenticated(isAuthenticated);
-					toast.success(message.msgBody);
-				} else {
-					toast.error("Unable to update profile. Please try again.");
-				}
-				
-			});
-		} else {
-			toast.error("Please fix errors before continuing.");
+	const checkName = (e) => {
+		e.preventDefault();
+		if(user.name !== form.name && form.name !== "") {
+			setErrors(error => ({...error, name: validateName(form.name)}));
+		} else if(user.name === form.name) {
+			setErrors(error => ({...error, name: {msgBody: "", msgError: false}}));
 		}
 	};
 
-	const validateName = (e) => {
+	const checkEmail = (e) => {
 		e.preventDefault();
-		if(user.name !== name && name !== "") {
-			setErrors({
-				...errors,
-				name: /^[\w\-\s]+$/.test(name)
-					? { msgBody: "", msgError: false} 
-					: { msgBody: "Valid characters are A-Z a-z 0-9 _ -", msgError: true }
-			});
-		} else if(user.name === name) {
-			setErrors({ ...errors, name: {msgBody: "", msgError: false}});
-		}
-	};
-
-	const validateEmail = (e) => {
-		e.preventDefault();
-		if(user.email !== email && email !== "") {
-			const normalized = email.trim().toLowerCase();
-			if(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(normalized)) {
-				AuthService.validateEmail({email: normalized}).then(data => {
-					const { message } = data;
-					setErrors({
-						...errors,
-						email: message.msgError === true ? message : { msgBody: "", msgError: false }
-					});
-				});
-			} else {
-				setErrors({
-					...errors,
-					email: { msgBody: "Invalid email address format", msgError: true }
-				});
-			}
-		} else if(user.email === email) {
+		if(user.email !== form.email && form.email !== "") {
+			validateEmail(form.email).then(data => {
+				setErrors(error => ({...error, email: data}));
+			}).catch(error => {});
+		} else if(user.email === form.email) {
 			setErrors({ ...errors, email: {msgBody: "", msgError: false}});
 		}
 	};
@@ -110,31 +93,31 @@ const EditBasicInfo = (props) => {
 		<Grid container item spacing={3}>
 			<Grid container item justify="center">
 				<Grid item xs={11} sm={7} md={5} lg={3}>
-					<TextField value={name} id="name" name="name" label="Name" variant="outlined" fullWidth
-						onChange={(event) => setName(event.target.value)} onBlur={validateName}
+					<TextField value={form.name} id="name" name="name" label="Name" variant="outlined" fullWidth
+						onChange={handleChange} onBlur={checkName}
 						error={errors.name.msgError} helperText={errors.name.msgBody}
 						inputProps={{ maxLength: 26 }} />
 				</Grid>
 			</Grid>
 			<Grid container item justify="center">
 				<Grid item xs={11} sm={7} md={5} lg={3}>
-					<TextField value={email} id="email" name="email" label="Email Address" fullWidth
-						variant="outlined" onChange={(event) => setEmail(event.target.value)} 
-						onBlur={validateEmail}
+					<TextField value={form.email} id="email" name="email" label="Email Address" fullWidth
+						variant="outlined" onChange={handleChange} 
+						onBlur={checkEmail}
 						error={errors.email.msgError} helperText={errors.email.msgBody} />
 				</Grid>
 			</Grid>
 			<Grid container item justify="center">
 				<Grid item xs={11} sm={7} md={5} lg={3}>
-					<span className={clsx(user.name === name && user.email === email && classes.notAllowedCursor)}>
+					<span className={clsx(user.name === form.name && user.email === form.email && classes.notAllowedCursor)}>
 						<Button size="small" variant="contained" color="secondary" 
-							disabled={user.name === name && user.email === email} onClick={resetProfile}>
+							disabled={user.name === form.name && user.email === form.email} onClick={resetProfile}>
 							cancel changes
 						</Button>
 					</span>
 					<span className={clsx(classes.updateProfileButton, !isProfileFormValid() && classes.notAllowedCursor)}>
 						<Button size="small" variant="contained" color="primary"
-							disabled={!isProfileFormValid()} onClick={updateProfile}>
+							disabled={!isProfileFormValid()} onClick={handleSubmit}>
 							update profile
 						</Button>
 					</span>
@@ -142,14 +125,6 @@ const EditBasicInfo = (props) => {
 			</Grid>
 		</Grid>
 	);
-};
-
-EditBasicInfo.propTypes = {
-	handleLogout: PropTypes.func
-};
-
-EditBasicInfo.defaultProps = {
-	handleLogout: () => {}
 };
 
 export default EditBasicInfo;

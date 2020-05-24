@@ -1,11 +1,11 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import SpotifyService from "../../Services/SpotifyService";
 import Button from "@material-ui/core/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpotify } from "@fortawesome/free-brands-svg-icons";
 import SpotifyContainer from "./SpotifyContainer";
 import { useDispatch } from "react-redux";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
 	spotifyButton: {
@@ -27,16 +27,17 @@ const Spotify = () => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		SpotifyService.getProfile().then(data => {
-			const { profile, message } = data;
-			if(message.msgError === false) {
-				setIsSpotifyAuth(true);
-				dispatch({profile, type: "SET_PROFILE"});
-			} else {
-				setIsSpotifyAuth(false);
-				dispatch({profile: {}, type: "SET_PROFILE"});
-			}
+		let source = axios.CancelToken.source();
+		axios.get("/spotify/profile", {cancelToken: source.token}).then(res => {
+			const { profile } = res.data;
+			setIsSpotifyAuth(true);
+			dispatch({profile, type: "SET_PROFILE"});
+		}).catch(error => {
+			setIsSpotifyAuth(false);
+			dispatch({profile: {}, type: "SET_PROFILE"});
 		});
+
+		return () => source.cancel();
 	}, [dispatch]);
 
 	return (

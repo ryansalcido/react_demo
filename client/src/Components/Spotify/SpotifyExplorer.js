@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpotify } from "@fortawesome/free-brands-svg-icons";
 import Typography from "@material-ui/core/Typography";
 import Hidden from "@material-ui/core/Hidden";
-import SpotifyService from "../../Services/SpotifyService";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
 	explorerRoot: {
@@ -42,75 +42,71 @@ const SpotifyExplorer = () => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		SpotifyService.getPlaylists().then(data => {
-			const { playlists, message } = data;
-			if(message.msgError === false) {
-				dispatch({playlists, type: "SET_PLAYLISTS"});
-			} else {
-				dispatch({playlists: [], type: "SET_PLAYLISTS"});
-			}
+		let source = axios.CancelToken.source();
+		axios.get("/spotify/playlists", {cancelToken: source.token}).then(res => {
+			const { playlists } = res.data;
+			dispatch({playlists, type: "SET_PLAYLISTS"});
+		}).catch(error => {
+			dispatch({playlists: [], type: "SET_PLAYLISTS"});
 		});
+
+		return () => source.cancel();
 	}, [dispatch]);
 
 	const getTracksByPlaylist = (playlist) => {
 		dispatch({isLoading: true, type: "SET_IS_LOADING"});
-		SpotifyService.getTracksByPlaylist(playlist.id).then(data => {
-			const { tracks, message } = data;
-			if(message.msgError === false) {
-				playlist.type = "PLAYLIST";
-				dispatch({tracks, type: "SET_TRACKS"});
-				dispatch({selectedInfo: playlist, type: "SET_SELECTED_INFO"});
-			} else {
-				dispatch({tracks: [], type: "SET_TRACKS"});
-				dispatch({selectedInfo: null, type: "SET_SELECTED_INFO"});
-			}
-			dispatch({albums: [], type: "SET_ALBUMS"});
+		dispatch({albums: [], type: "SET_ALBUMS"});
+		axios.get(`/spotify/playlist/${playlist.id}`).then(res => {
+			const { tracks } = res.data;
+			playlist.type = "PLAYLIST";
+			dispatch({tracks, type: "SET_TRACKS"});
+			dispatch({selectedInfo: playlist, type: "SET_SELECTED_INFO"});
 			dispatch({isLoading: false, type: "SET_IS_LOADING"});
-		});
-	};
-
-	const getSavedTracks = () => {
-		dispatch({isLoading: true, type: "SET_IS_LOADING"});
-		SpotifyService.getSavedTracks().then(data => {
-			const { savedTracks, message } = data;
-			if(message.msgError === false) {
-				dispatch({tracks: savedTracks, type: "SET_TRACKS"});
-				dispatch({
-					selectedInfo: {
-						images: [{url: "https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png"}],
-						name: "Liked Songs",
-						type: "PLAYLIST",
-						owner: { display_name: profile.display_name },
-						tracks: { total: savedTracks.length }
-					}, 
-					type: "SET_SELECTED_INFO"
-				});
-			} else {
-				dispatch({tracks: [], type: "SET_TRACKS"});
-				dispatch({selectedInfo: null, type: "SET_SELECTED_INFO"});
-			}
-			dispatch({albums: [], type: "SET_ALBUMS"});
-			dispatch({isLoading: false, type: "SET_IS_LOADING"});
-		});
-	};
-
-	const getSavedAlbums = () => {
-		dispatch({isLoading: true, type: "SET_IS_LOADING"});
-		SpotifyService.getSavedAlbums().then(data => {
-			const { savedAlbums, message } = data;
-			if(message.msgError === false) {
-				dispatch({albums: savedAlbums.items, type: "SET_ALBUMS"});
-			} else {
-				dispatch({albums: [], type: "SET_ALBUMS"});
-			}
+		}).catch(error => {
 			dispatch({tracks: [], type: "SET_TRACKS"});
 			dispatch({selectedInfo: null, type: "SET_SELECTED_INFO"});
 			dispatch({isLoading: false, type: "SET_IS_LOADING"});
 		});
 	};
 
+	const getSavedTracks = () => {
+		dispatch({isLoading: true, type: "SET_IS_LOADING"});
+		dispatch({albums: [], type: "SET_ALBUMS"});
+		axios.get("/spotify/savedTracks").then(res => {
+			const { savedTracks } = res.data;
+			dispatch({tracks: savedTracks, type: "SET_TRACKS"});
+			dispatch({
+				selectedInfo: {
+					images: [{url: "https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png"}],
+					name: "Liked Songs",
+					type: "PLAYLIST",
+					owner: { display_name: profile.display_name },
+					tracks: { total: savedTracks.length }
+				}, 
+				type: "SET_SELECTED_INFO"
+			});
+			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+		}).catch(error => {
+			dispatch({tracks: [], type: "SET_TRACKS"});
+			dispatch({selectedInfo: null, type: "SET_SELECTED_INFO"});
+			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+		});
+	};
+
+	const getSavedAlbums = () => {
+		dispatch({isLoading: true, type: "SET_IS_LOADING"});
+		axios.get("/spotify/savedAlbums").then(res => {
+			const { savedAlbums } = res.data;
+			dispatch({albums: savedAlbums.items, type: "SET_ALBUMS"});
+			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+		}).catch(error => {
+			dispatch({albums: [], type: "SET_ALBUMS"});
+			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+		});
+	};
+
 	return (
-		<Grid container direction="column">
+		<Grid container>
 			<Grid container item alignItems="center" justify="center">
 				<Grid item>
 					<FontAwesomeIcon icon={faSpotify} size="2x" className={classes.spotifyIcon} />

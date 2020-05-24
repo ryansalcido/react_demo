@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -6,10 +6,6 @@ import TabPanel from "../shared/TabPanel";
 import Grid from "@material-ui/core/Grid";
 import BasicInfo from "./EditBasicInfo";
 import EditPassword from "./EditPassword";
-import AuthService from "../../Services/AuthService";
-import { AuthContext } from "../../Context/AuthContext";
-import { useHistory } from "react-router-dom";
-import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
 	profileRoot: {
@@ -20,23 +16,7 @@ const useStyles = makeStyles((theme) => ({
 const ManageProfile = () => {
 	const classes = useStyles();
 
-	const history = useHistory();
-	const { setUser, setIsAuthenticated } = useContext(AuthContext);
-
 	const [ value, setValue ] = useState(0);
-
-	const handleLogout = () => {
-		AuthService.logout().then(data => {
-			if(data.success) {
-				toast.info("Session has expired. Please log back in.");
-				setUser(data.user);
-				setIsAuthenticated(false);
-			} else {
-				toast.error("Error occurred due to expired sesion.");
-			}
-			history.push("/login");
-		});
-	};
 
 	return (
 		<div className={classes.profileRoot}>
@@ -50,10 +30,10 @@ const ManageProfile = () => {
 				</Grid>
 				<Grid item xs={12}>
 					<TabPanel value={value} index={0}>
-						<BasicInfo handleLogout={handleLogout} />
+						<BasicInfo />
 					</TabPanel>
 					<TabPanel value={value} index={1}>
-						<EditPassword handleLogout={handleLogout} />
+						<EditPassword />
 					</TabPanel>
 				</Grid>
 			</Grid>

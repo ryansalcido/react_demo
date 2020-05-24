@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Route, BrowserRouter as Router, Switch, Redirect } from "react-router-dom";
 import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -11,37 +11,16 @@ import ManageProfile from "./Components/ManageProfile/ManageProfile";
 import NotFound from "./Components/NotFound";
 import PrivateRoute from "./hocs/PrivateRoute";
 import UnPrivateRoute from "./hocs/UnPrivateRoute";
-import themeObject from "./theme";
 import Footer from "./Components/Footer";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDarkTheme } from "./hooks/useDarkTheme";
 
-const useDarkTheme = () => {
+const App = () => {
 	toast.configure({autoClose: 2500, draggable: false});
-
-	if(localStorage.getItem("type")) {
-		themeObject.palette.type = localStorage.getItem("type");
-	}
-	const [ theme, setTheme ] = useState(themeObject);
-
-	const { palette: { type }} = theme;
-	const toggleDarkTheme = () => {
-		const updatedTheme = {
-			...theme,
-			palette: {
-				...theme.palette,
-				type: type === "light" ? "dark" : "light"
-			}
-		};
-		localStorage.setItem("type", updatedTheme.palette.type);
-		setTheme(updatedTheme);
-	};
-	return [ theme, toggleDarkTheme ];
-};
-
-function App() {
 	const [ theme, toggleDarkTheme ] = useDarkTheme();
 	const themeConfig = createMuiTheme(theme);
+
 	return (
 		<ThemeProvider theme={themeConfig}>
 			<CssBaseline />
@@ -62,6 +41,6 @@ function App() {
 			</Router>
 		</ThemeProvider>
 	);
-}
+};
 
 export default App;

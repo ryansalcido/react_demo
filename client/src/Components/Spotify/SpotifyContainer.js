@@ -7,7 +7,7 @@ import SpotifyContentView from "./SpotifyContentView";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		maxHeight: 450
+		minHeight: 450
 	},
 	explorerView: {
 		borderRight: `1px solid ${theme.palette.divider}`
