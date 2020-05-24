@@ -11,8 +11,9 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Divider from "@material-ui/core/Divider";
 import Menu from "@material-ui/core/Menu";
 import { AuthContext } from "../Context/AuthContext";
-import AuthService from "../Services/AuthService";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { getUserInitials } from "../utils/StringUtils";
 
 const useStyles = makeStyles((theme) => ({
 	profileButton: {
@@ -37,24 +38,19 @@ const useStyles = makeStyles((theme) => ({
 const AuthenticatedHeader = () => {
 	const classes = useStyles();
 
-	const { user, setUser, setIsAuthenticated } = useContext(AuthContext);
+	const { user, manageUserSession } = useContext(AuthContext);
 	const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-
-	const getUserInitials = (name) => {
-		//Gets first letter of word in user's name up to three 3 letters
-		return name.split(" ").map(e => e[0]).join("").substring(0, 3);
-	};
 
 	const onClickLogoutHandler = () => {
 		handleClose();
-		AuthService.logout().then(data => {
-			if(data.success) {
-				toast.info("Successfully logged out");
-				setUser(data.user);
-				setIsAuthenticated(false);
-			} else {
-				toast.error("Error occurred attempting to logout");
+		axios.get("/user/logout").then(res => {
+			const { user, success } = res.data;
+			if(user && success) {
+				manageUserSession(user, false);
 			}
+		}).catch(error => {
+			toast.error("Error occurred attempting to logout");
+			manageUserSession({name: "", email: ""}, false);
 		});
 	};
 

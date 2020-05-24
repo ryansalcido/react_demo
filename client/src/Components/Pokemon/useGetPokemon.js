@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PokemonService from "../../Services/PokemonService";
+import axios from "axios";
 
 function useGetPokemon(currentUrl) {
 	const [ isLoading, setIsLoading ] = useState(false);
@@ -7,17 +7,25 @@ function useGetPokemon(currentUrl) {
 	const [ nextUrl, setNextUrl ] = useState(null);
 
 	useEffect(() => {
+		let source = axios.CancelToken.source();
 		setIsLoading(true);
-		PokemonService.getPokemon(currentUrl).then(data => {
-			const { next, results } = data;
+		axios.get(currentUrl, {cancelToken: source.token}).then(res => {
+			const { next, results } = res.data;
 			setNextUrl(next);
 
-			Promise.all(results.map(p => PokemonService.getPokemonInfo(p.url).then(info => info)
-			)).then(res => {
-				setPokemon(prevPokemon => [ ...prevPokemon, ...res ]);
-				setIsLoading(false);
-			});
+			Promise.all(
+				results.map(p => axios.get(p.url, {cancelToken: source.token}).then(info => info.data)))
+				.then(response => {
+					setPokemon(prevPokemon => [ ...prevPokemon, ...response ]);
+					setIsLoading(false);
+				}).catch(err => {
+					//Catch axios cancel error
+				});
+		}).catch(error => {
+			//Catch axios cancel error
 		});
+
+		return () => source.cancel();
 	}, [currentUrl]);
 
 	return { isLoading, pokemon, nextUrl };

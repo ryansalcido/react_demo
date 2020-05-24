@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -8,14 +8,14 @@ import Divider from "@material-ui/core/Divider";
 import ClearIcon from "@material-ui/icons/Clear";
 import SearchIcon from "@material-ui/icons/Search";
 import Typography from "@material-ui/core/Typography";
-import WeatherService from "../../Services/WeatherService";
 import WeatherCard from "./WeatherCard";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import ToggleButton from "@material-ui/lab/ToggleButton";
-import AuthService from "../../Services/AuthService";
 import { AuthContext } from "../../Context/AuthContext";
-import { useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { createWeatherList } from "./helpers";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -40,35 +40,19 @@ const useStyles = makeStyles((theme) => ({
 const Weather = () => {
 	const classes = useStyles();
 
-	const history = useHistory();
-	const { setUser, setIsAuthenticated } = useContext(AuthContext);
+	const { manageUserSession } = useContext(AuthContext);
 
 	const [ location, setLocation ] = useState("");
-	const [ forecast, setForecast ] = useState({});
+	const [ forecast, setForecast ] = useLocalStorage("weather", {});
 	const [ message, setMessage ] = useState({msgBody: "", msgError: false});
 	const [ tempScale, setTempScale ] = useState("fahrenheit");
 
+	const cancelSourceRef = useRef();
+
 	useEffect(() => {
-		if(localStorage.getItem("weather")) {
-			const dailyWeather = JSON.parse(localStorage.getItem("weather"));
-			setForecast(dailyWeather);
-		}
+		//If axios source ref is created => Cancel request
+		return () => cancelSourceRef.current ? cancelSourceRef.current.cancel() : null;
 	}, []);
-
-	const calcTempConversion = (temp) => {
-		return {
-			fahrenheit: Math.round(temp),
-			celsius: Math.round((temp - 32) * (5 / 9)),
-			kelvin: Math.round((temp - 32) * (5 / 9) + 273.15)
-		};
-	};
-
-	const calcSpeedConversion = (speed) => {
-		return {
-			imperial: speed.toFixed(2),
-			metric: parseFloat((speed / 2.237).toFixed(2))
-		};
-	};
 
 	const handleTempScaleChange = (event, newTempScale) => {
 		if(newTempScale !== null) {
@@ -78,42 +62,31 @@ const Weather = () => {
 
 	const getWeatherInfo = (e) => {
 		e.preventDefault();
-		WeatherService.getWeatherForecast({location}).then(data => {
-			const { message, weatherForecast, location, isAuthenticated } = data;
-			if(isAuthenticated === false) {
-				AuthService.logout().then(data => {
-					if(data.success) {
-						toast.info("Session has expired. Please log back in.");
-						setUser(data.user);
-						setIsAuthenticated(false);
-					} else {
-						toast.error("Error occurred due to expired sesion.");
-					}
-					history.push("/login");
-				});
-			} else if(message.msgError === true) {
-				setForecast({});
-				setMessage(message);
-			} else {
+		cancelSourceRef.current = axios.CancelToken.source();
+		axios.post("/weather/forecast", {location}, {cancelToken: cancelSourceRef.current.token}).then(res => {
+			const { weatherForecast, location } = res.data;
+			if(weatherForecast && location) {
 				setMessage({msgBody: "", msgError: false});
-				weatherForecast.list.forEach((reading) => {
-					reading.calc = {};
-					reading.calc.feels_like = calcTempConversion(reading.main.feels_like);
-					reading.calc.temp = calcTempConversion(reading.main.temp);
-					reading.calc.temp_max = calcTempConversion(reading.main.temp_max);
-					reading.calc.temp_min = calcTempConversion(reading.main.temp_min);
-					reading.calc.wind = calcSpeedConversion(reading.wind.speed);
-					reading.calc.local_time = reading.dt + weatherForecast.city.timezone;
-				});
-				const dailyWeather = {
+				const weatherList = createWeatherList(weatherForecast.list);
+				setForecast({
 					location,
 					city: weatherForecast.city,
-					list: weatherForecast.list.filter(reading => reading.dt_txt.indexOf("18:00:00") !== -1)
-				};
-				localStorage.setItem("weather", JSON.stringify(dailyWeather));
-				setForecast(dailyWeather);
+					list: weatherList.filter(reading => reading.dt_txt.indexOf("18:00:00") !== -1)
+				});
+				setLocation("");
 			}
-			setLocation("");
+		}).catch(error => {
+			if(error.response) {
+				const { status, data } = error.response;
+				if(status === 401) {
+					manageUserSession({name: "", email: ""}, false);
+					toast.info("Session has timed out");
+				} else if(data && data.message) {
+					setLocation("");
+					setForecast({});
+					setMessage(data.message);
+				}
+			}
 		});
 	};
 

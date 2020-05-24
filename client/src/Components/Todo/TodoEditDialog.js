@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -6,8 +6,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import TodoService from "../../Services/TodoService";
 import PropTypes from "prop-types";
+import { AuthContext } from "../../Context/AuthContext";
+import axios from "axios";
 import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
@@ -24,23 +25,25 @@ const useStyles = makeStyles((theme) => ({
 
 const TodoEditDialog = (props) => {
 	const classes = useStyles();
-	const { todo, updateTodoList, setIsLoading, openEditDialog, setOpenEditDialog, handleLogout } = props;
+	const { todo, setIsLoading, setTodoList, openEditDialog, setOpenEditDialog } = props;
 	
+	const { manageUserSession } = useContext(AuthContext);
 	const [ newTodoName, setNewTodoName ] = useState("");
 
 	const updateTodo = () => {
 		setOpenEditDialog(false); 
 		setIsLoading(true);
-		TodoService.updateTodo({_id: todo._id, name: newTodoName}).then(data => {
-			const { isAuthenticated, message } = data;
-			if(isAuthenticated && message) {
+		axios.post("/user/updateTodo", {_id: todo._id, name: newTodoName}).then(res => {
+			const { isAuthenticated, todos } = res.data;
+			if(isAuthenticated && todos) {
 				setNewTodoName("");
-				updateTodoList();
-			} else if(isAuthenticated === false) {
-				handleLogout();
-			} else {
-				toast.error("Unable to update todo. Please try again.");
-				setIsLoading(false);
+				setTodoList(todos);
+			}
+			setIsLoading(false);
+		}).catch(error => {
+			if(error.response && error.response.status === 401) {
+				manageUserSession({name: "", email: ""}, false);
+				toast.info("Session has timed out");
 			}
 		});
 	};
@@ -66,15 +69,10 @@ const TodoEditDialog = (props) => {
 
 TodoEditDialog.propTypes = {
 	todo: PropTypes.object.isRequired,
-	updateTodoList: PropTypes.func.isRequired,
+	setTodoList: PropTypes.func.isRequired,
 	setIsLoading: PropTypes.func.isRequired,
 	openEditDialog: PropTypes.bool.isRequired,
-	setOpenEditDialog: PropTypes.func.isRequired,
-	handleLogout: PropTypes.func
-};
-
-TodoEditDialog.defaultProps = {
-	handleLogout: () => {}
+	setOpenEditDialog: PropTypes.func.isRequired
 };
 
 export default TodoEditDialog;

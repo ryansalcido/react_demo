@@ -1,8 +1,8 @@
-import React, { createContext, useState, useEffect } from "react";
-import AuthService from "../Services/AuthService";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -26,14 +26,26 @@ const AuthProvider = ({ children }) => {
 
 	const [ user, setUser ] = useState(null);
 	const [ isAuthenticated, setIsAuthenticated ] = useState(false);
-	const [isLoaded, setIsLoaded] = useState(false);
+	const [ isLoaded, setIsLoaded ] = useState(false);
 
 	useEffect(() => {
-		AuthService.isAuthenticated().then(data => {
-			setUser(data.user);
-			setIsAuthenticated(data.isAuthenticated);
+		axios.get("/user/authenticated", {headers: {"pragma": "no-cache", "cache-control": "no-cache"}}).then(res => {
+			const { user, isAuthenticated } = res.data;
+			if(user && isAuthenticated) {
+				setUser(user);
+				setIsAuthenticated(isAuthenticated);
+				setIsLoaded(true);
+			}
+		}).catch(error => {
+			setUser({name: "", email: ""});
+			setIsAuthenticated(false);
 			setIsLoaded(true);
 		});
+	}, []);
+
+	const manageUserSession = useCallback((user, isAuthenticated) => {
+		setUser(user);
+		setIsAuthenticated(isAuthenticated);
 	}, []);
 
 	return (
@@ -42,7 +54,7 @@ const AuthProvider = ({ children }) => {
 				? <div className={classes.loadingBackground}>
 					<CircularProgress color="secondary" />
 				</div>
-				: <AuthContext.Provider value={{user, setUser, isAuthenticated, setIsAuthenticated}}>
+				: <AuthContext.Provider value={{user, setUser, isAuthenticated, setIsAuthenticated, manageUserSession}}>
 					{ children }
 				</AuthContext.Provider>
 			}

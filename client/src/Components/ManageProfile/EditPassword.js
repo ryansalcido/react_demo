@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
@@ -8,9 +8,11 @@ import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import AuthService from "../../Services/AuthService";
+import { AuthContext } from "../../Context/AuthContext";
 import clsx from "clsx";
-import PropTypes from "prop-types";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useForm } from "../../hooks/useForm";
 
 const useStyles = makeStyles((theme) => ({
 	changePasswordButton: {
@@ -21,60 +23,60 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const EditPassword = (props) => {
+const EditPassword = () => {
 	const classes = useStyles();
-
-	const { handleLogout } = props;
-
-	const [ originalPassword, setOriginalPassword ] = useState("");
-	const [ showPassword, setShowPassword ] = useState(false);
-	const [ message, setMessage ] = useState({msgBody: "", msgError: false});
-	const [ newPassword, setNewPassword ] = useState("");
 
 	const changePassword = () => {
 		if(isFormValid()) {
-			AuthService.changePassword({originalPassword, newPassword}).then(data => {
-				const { isAuthenticated, message } = data;
-				if(isAuthenticated === false) {
-					handleLogout();
-				} else {
-					setMessage(message);
-					if(message.msgError === false) {
-						setOriginalPassword("");
-						setNewPassword("");
+			const { originalPassword, newPassword } = form;
+			axios.post("/user/changePassword", {originalPassword, newPassword}).then(res => {
+				const { message } = res.data;
+				setMessage(message);
+				setForm({originalPassword: "", newPassword: "", showPassword: false});
+			}).catch(error => {
+				if(error.response) {
+					const { status, data } = error.response;
+					if(status === 401) {
+						manageUserSession({name: "", email: ""}, false);
+						toast.info("Session has timed out");
+					} else if(data && data.message) {
+						setMessage(data.message);
 					}
 				}
 			});
 		}
 	};
 
+	const { manageUserSession } = useContext(AuthContext);
+	const [ form, setForm, handleChange, handleSubmit ] =
+		useForm({originalPassword: "", newPassword: "", showPassword: false}, changePassword);
+	const [ message, setMessage ] = useState({msgBody: "", msgError: false});
+
 	const isFormValid = () => {
-		return originalPassword !== "" && newPassword !== "" && newPassword.length >= 8;
+		return form.originalPassword !== "" && form.newPassword !== "" && form.newPassword.length >= 8;
 	};
 
-	const cancelChanges = () => {
-		setOriginalPassword("");
-		setNewPassword("");
-		setMessage("");
+	const resetForm = () => {
+		setMessage({msgBody: "", msgError: false});
+		setForm({originalPassword: "", newPassword: "", showPassword: false});
 	};
 
 	return (
 		<Grid container item spacing={2} justify="center">
 			<Grid item xs={12}>
-				{message.msgError === false 
-					? <Typography variant="h6" align="center" color="primary">{message.msgBody}</Typography>
-					: <Typography variant="h6" align="center" color="error">{message.msgBody}</Typography>
-				}
+				<Typography variant="h6" align="center" color={message.msgError === false ? "primary" : "error"}>
+					{message.msgBody}
+				</Typography>
 			</Grid>
 			<Grid container item justify="center">
 				<Grid item xs={11} sm={7} md={5} lg={3}>
-					<TextField value={originalPassword} id="originalPassword" name="originalPassword" label="Original Password" variant="outlined"
-						fullWidth type={showPassword ? "text" : "password"}
-						onChange={(event) => setOriginalPassword(event.target.value)}
+					<TextField value={form.originalPassword} id="originalPassword" name="originalPassword" label="Original Password" variant="outlined"
+						fullWidth type={form.showPassword ? "text" : "password"}
+						onChange={handleChange}
 						InputProps={{ endAdornment: (
 							<InputAdornment position="end">
-								<IconButton edge="end" onClick={() => setShowPassword(!showPassword)}>
-									{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+								<IconButton edge="end" onClick={() => setForm(form => ({...form, "showPassword": !form.showPassword}))}>
+									{form.showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
 								</IconButton>
 							</InputAdornment>
 						)}} />
@@ -82,14 +84,14 @@ const EditPassword = (props) => {
 			</Grid>
 			<Grid container item justify="center">
 				<Grid item xs={11} sm={7} md={5} lg={3}>
-					<TextField value={newPassword} id="newPassword" name="newPassword" label="New Password" variant="outlined"
-						fullWidth type={showPassword ? "text" : "password"}
-						onChange={(event) => setNewPassword(event.target.value)}
+					<TextField value={form.newPassword} id="newPassword" name="newPassword" label="New Password" variant="outlined"
+						fullWidth type={form.showPassword ? "text" : "password"}
+						onChange={handleChange}
 						helperText="Password must be at least 8 characters"
 						InputProps={{ endAdornment: (
 							<InputAdornment position="end">
-								<IconButton edge="end" onClick={() => setShowPassword(!showPassword)}>
-									{showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+								<IconButton edge="end" onClick={() => setForm(form => ({...form, "showPassword": !form.showPassword}))}>
+									{form.showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
 								</IconButton>
 							</InputAdornment>
 						)}} />
@@ -97,15 +99,15 @@ const EditPassword = (props) => {
 			</Grid>
 			<Grid container item justify="center">
 				<Grid item xs={11} sm={7} md={5} lg={3}>
-					<span className={clsx(originalPassword === ""  && newPassword === "" && classes.notAllowedCursor)}>
+					<span className={clsx(form.originalPassword === ""  && form.newPassword === "" && classes.notAllowedCursor)}>
 						<Button size="small" variant="contained" color="secondary" 
-							disabled={originalPassword === "" && newPassword === ""} onClick={cancelChanges}>
+							disabled={form.originalPassword === "" && form.newPassword === ""} onClick={resetForm}>
 							cancel changes
 						</Button>
 					</span>
 					<span className={clsx(classes.changePasswordButton, !isFormValid() && classes.notAllowedCursor)}>
 						<Button size="small" fullWidth color="primary" variant="contained" 
-							onClick={changePassword} disabled={!isFormValid()}>
+							onClick={handleSubmit} disabled={!isFormValid()}>
 							change password
 						</Button>
 					</span>
@@ -113,14 +115,6 @@ const EditPassword = (props) => {
 			</Grid>
 		</Grid>
 	);
-};
-
-EditPassword.propTypes = {
-	handleLogout: PropTypes.func
-};
-
-EditPassword.defaultProps = { 
-	handleLogout: () => {}
 };
 
 export default EditPassword;

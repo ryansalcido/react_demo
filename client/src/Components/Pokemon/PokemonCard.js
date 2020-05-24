@@ -5,12 +5,12 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
-import PokemonService from "../../Services/PokemonService";
 import PokemonStat from "./PokemonStat";
 import { toProperCase } from "../../utils/StringUtils";
 import PokemonProfile from "./PokemonProfile";
 import { POKEMON_TYPE_COLORS } from "../../constants";
 import HelpOutlineOutlinedIcon from "@material-ui/icons/HelpOutlineOutlined";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -38,14 +38,13 @@ const PokemonCard = (props) => {
 	const classes = useStyles();
 
 	useEffect(() => {
-		let isCanceled = false;
-		PokemonService.getPokemonSpecies(pokemon.species.url).then(data => {
-			if(!isCanceled) {
-				setSpecies(data);
-			}
-		});
+		let source = axios.CancelToken.source();
+		axios.get(pokemon.species.url, {cancelToken: source.token}).then(res => {
+			setSpecies(res.data);
+		}).catch(error => {
 
-		return () => isCanceled = true;
+		});
+		return () => source.cancel();
 	}, [pokemon.species.url]);
 
 	const formatPokemonName = (name) => {
