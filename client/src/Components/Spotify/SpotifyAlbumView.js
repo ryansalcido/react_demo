@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
 import GridListTileBar from "@material-ui/core/GridListTileBar";
 import Typography from "@material-ui/core/Typography";
-import { useSelector, useDispatch } from "react-redux";
 import { useWidth, isWidthUp } from "../../hooks/useWidth";
+import { SpotifyContext } from "../../Context/SpotifyContext";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		padding: 12
+		padding: theme.spacing(2)
 	},
 	albumListRoot: {
 		overflowY: "unset"
@@ -32,31 +32,28 @@ const getGridListCols = (theme, inclusive) => {
 
 const SpotifyAlbumView = () => {
 	const classes = useStyles();
-	const albums = useSelector(state => state.albums);
-	const dispatch = useDispatch();
+	const { setIsLoading, setViewInfo, viewInfo: {albums} } = useContext(SpotifyContext);
 	const { theme, breakpoint } = useWidth();
 
 	const getTracksByAlbum = (item) => {
-		dispatch({isLoading: true, type: "SET_IS_LOADING"});
-		dispatch({albums: [], type: "SET_ALBUMS"});
+		setIsLoading(true);
 		const formattedTracks = [];
 		item.album.tracks.items.forEach((track) => {
 			track.album = { name: item.album.name };
 			const temp = { track };
 			formattedTracks.push(temp);
 		});
-		dispatch({tracks: formattedTracks, type: "SET_TRACKS"});
-		dispatch({
-			selectedInfo: {
+		setViewInfo({
+			type: "PLAYLIST",
+			content: formattedTracks,
+			playlist: {
 				images: [{url: item.album.images[0].url}],
 				name: item.album.name,
-				type: "ALBUM",
 				owner: { display_name: item.album.artists[0].name },
 				tracks: { total: item.album.tracks.total }
-			},
-			type: "SET_SELECTED_INFO"
+			}
 		});
-		dispatch({isLoading: false, type: "SET_IS_LOADING"});
+		setIsLoading(false);
 	};
 
 	return (

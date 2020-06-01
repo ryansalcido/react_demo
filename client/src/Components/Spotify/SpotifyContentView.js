@@ -1,10 +1,11 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import SpotifyHeader from "./SpotifyHeader";
 import SpotifyPlaylistView from "./SpotifyPlaylistView";
 import SpotifyAlbumView from "./SpotifyAlbumView";
-import { useSelector } from "react-redux";
+import SpotifyErrorView from "./SpotifyErrorView";
 import Spinner from "react-spinkit";
+import { SpotifyContext } from "../../Context/SpotifyContext";
 
 const useStyles = makeStyles((theme) => ({
 	contentView: {
@@ -21,15 +22,15 @@ const useStyles = makeStyles((theme) => ({
 
 const SpotifyContentView = () => {
 	const classes = useStyles();
-	const albums = useSelector(state => state.albums);
-	const isLoading = useSelector(state => state.isLoading);
-	const selectedInfo = useSelector(state => state.selectedInfo);
+	const { viewInfo, isLoading, error } = useContext(SpotifyContext);
 
-	var spotifyView;
-	if(albums.length > 0) {
-		spotifyView = <SpotifyAlbumView />;
-	} else if(selectedInfo !== null) {
+	let spotifyView;
+	if(error) {
+		spotifyView = <SpotifyErrorView />;
+	} else if(viewInfo && viewInfo.type === "PLAYLIST") {
 		spotifyView = <SpotifyPlaylistView />;
+	} else if(viewInfo && viewInfo.type === "ALBUM") {
+		spotifyView = <SpotifyAlbumView />;
 	}
 	
 	return (
@@ -38,7 +39,7 @@ const SpotifyContentView = () => {
 			<div className={classes.contentView}>
 				{isLoading 
 					? <Spinner name="ball-pulse-sync" className={classes.loadingSpinner} fadeIn="none" color="#1DB954" />
-					: spotifyView
+					: spotifyView && spotifyView
 				}
 			</div>
 		</Fragment>

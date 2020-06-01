@@ -4,44 +4,40 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import { toProperCase } from "../../utils/StringUtils";
 
+const calculateFemaleRatio = (femaleRatio) => {
+	if(femaleRatio === -1) {
+		return "No gender";
+	} else {
+		return Math.round(12.5 * femaleRatio);
+	}
+};
+
+const calculateWeight = (weight) => {
+	return (weight / 4.536).toFixed(2);
+};
+
+const calculateHeight = (height) => {
+	return (height / 3.048).toFixed(2);
+};
+
+const calculateCaptureRate = (captureRate) => {
+	return Math.round((100 / 255) * captureRate);
+};
+
+const formatAbilities = (abilities) => {
+	return abilities.map(a => toProperCase(a.ability.name)).join(", ");
+};
+
+const calculateHatchSteps = (hatchSteps) => {
+	return 255 * (hatchSteps + 1);
+};
+
+const formatEggGroups = (eggGroups) => {
+	return eggGroups ? eggGroups.map(e => toProperCase(e.name)).join(", ") : "";
+};
+
 const PokemonProfile = (props) => {
 	const { pokemon, species } = props;
-
-	const calculateFemaleRatio = (femaleRatio) => {
-		if(femaleRatio === -1) {
-			return "No gender";
-		} else {
-			return Math.round(12.5 * femaleRatio);
-		}
-	};
-
-	const calculateWeight = (weight) => {
-		return (weight / 4.536).toFixed(2);
-	};
-
-	const calculateHeight = (height) => {
-		return (height / 3.048).toFixed(2);
-	};
-
-	const calculateCaptureRate = (captureRate) => {
-		return Math.round((100 / 255) * captureRate);
-	};
-
-	const formatAbilities = (abilities) => {
-		return abilities.map(a => toProperCase(a.ability.name)).join(", ");
-	};
-
-	const calculateHatchSteps = (hatchSteps) => {
-		return 255 * (hatchSteps + 1);
-	};
-
-	const formatEggGroups = (eggGroups) => {
-		if(eggGroups) {
-			return eggGroups.map(e => toProperCase(e.name)).join(", ");
-		} else {
-			return "";
-		}
-	};
 
 	return (
 		<Grid container item>
@@ -67,4 +63,4 @@ PokemonProfile.propTypes = {
 	species: PropTypes.object.isRequired
 };
 
-export default PokemonProfile;
+export default React.memo(PokemonProfile);

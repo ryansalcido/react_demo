@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const userRouter = require("./routes/user");
 const weatherRouter = require("./routes/weather");
 const spotifyRouter = require("./routes/spotify");
+const nasaRouter = require("./routes/nasa");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use("/user", userRouter);
 app.use("/weather", weatherRouter);
 app.use("/spotify", spotifyRouter);
+app.use("/nasa", nasaRouter);
 
 const publicPath = path.join(__dirname, "build");
 app.use(express.static(publicPath));

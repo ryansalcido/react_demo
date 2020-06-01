@@ -73,7 +73,9 @@ spotifyRouter.get("/playlist/:id", async (req, res) => {
 		}
 		res.status(200).json({tracks: totalTracks, message: {msgBody: "Successfully retrieved tracks", msgError: false}});
 	} catch (err) {
-		res.status(400).json({message: {msgBody: "Unable to retrieve tracks", msgError: true}});
+		res.status(400).json({message: 
+			{msgBody: "Unable to retrieve tracks for given playlist. Please try again.", msgError: true}
+		});
 	}
 });
 
@@ -87,7 +89,9 @@ spotifyRouter.get("/savedTracks", async (req, res) => {
 		}
 		res.status(200).json({savedTracks: totalTracks, message: {msgBody: "Successfully retrieved your saved songs", msgError: false}});
 	} catch (error) {
-		res.status(400).json({message: {msgBody: "Unable to retrieve your saved songs", msgError: true}});
+		res.status(400).json({message: 
+			{msgBody: "Unable to retrieve your saved songs. Please try again.", msgError: true}
+		});
 	}
 });
 
@@ -95,7 +99,9 @@ spotifyRouter.get("/savedAlbums", (req, res) => {
 	spotifyApi.getMySavedAlbums().then(response => {
 		res.status(200).json({savedAlbums: response.body, message: {msgBody: "Successfully retrieved your saved albums", msgError: false}});
 	}).catch(error => {
-		res.status(400).json({message: {msgBody: "Unable to retrieve your saved albums", msgError: true}});
+		res.status(400).json({message: 
+			{msgBody: "Unable to retrieve your saved albums. Please try again.", msgError: true}
+		});
 	});
 });
 
