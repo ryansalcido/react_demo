@@ -1,6 +1,5 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMusic } from "@fortawesome/free-solid-svg-icons";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -8,10 +7,11 @@ import ExplicitIcon from "@material-ui/icons/Explicit";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import moment from "moment";
+import { SpotifyContext } from "../../Context/SpotifyContext";
 
 const useStyles = makeStyles((theme) => ({
 	playlistViewRoot: {
-		padding: 16
+		padding: theme.spacing(2)
 	},
 	trackItemPrimary: {
 		textOverflow: "ellipsis",
@@ -38,57 +38,55 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
-const SpotifyPlaylistView = (props) => {
+const formatArtistList = (artists) => {
+	var artist = [];
+	artists.forEach((item) => {
+		artist.push(item.name);
+	});
+	return artist.join(", ");
+};
+
+const formatTotalTimePlaylist = (tracks) => {
+	var totalTimeMins = 0;
+	tracks.forEach((item) => {
+		totalTimeMins += item.track.duration_ms / 60000;
+	});
+	const momentTotal = moment.duration({"minutes": totalTimeMins});
+	return `${momentTotal.hours()} hr ${momentTotal.minutes()} min ${momentTotal.seconds()} sec`;
+};
+
+const formatTrackDuration = (ms) => {
+	const time = moment.duration(ms);
+	return `${time.hours() > 0 ? time.hours() + ":" : ""}${time.minutes()}:${time.seconds() < 10 ? "0" + time.seconds() : time.seconds()}`;
+};
+
+const SpotifyPlaylistView = () => {
 	const classes = useStyles();
-
-	const tracks = useSelector(state => state.tracks);
-	const selectedInfo = useSelector(state => state.selectedInfo);
-
-	const formatArtistList = (artists) => {
-		var artist = [];
-		artists.forEach((item) => {
-			artist.push(item.name);
-		});
-		return artist.join(", ");
-	};
-
-	const formatTotalTimePlaylist = () => {
-		var totalTimeMins = 0;
-		tracks.forEach((item) => {
-			totalTimeMins += item.track.duration_ms / 60000;
-		});
-		const momentTotal = moment.duration({"minutes": totalTimeMins});
-		return `${momentTotal.hours()} hr ${momentTotal.minutes()} min ${momentTotal.seconds()} sec`;
-	};
-
-	const formatTrackDuration = (ms) => {
-		const time = moment.duration(ms);
-		return `${time.hours() > 0 ? time.hours() + ":" : ""}${time.minutes()}:${time.seconds() < 10 ? "0" + time.seconds() : time.seconds()}`;
-	};
+	const { viewInfo: {type, content, playlist} } = useContext(SpotifyContext);
 
 	return (
 		<div className={classes.playlistViewRoot}>
-			{selectedInfo !== null && (
+			{type && content && playlist && (
 				<Grid container spacing={1} alignItems="center">
-					{selectedInfo.images.length > 0 
+					{playlist.images.length > 0 
 						? <Grid item xs={12} md={4} lg={3}>
-							<img src={selectedInfo.images[0].url} width="200" height="200" alt="Playlist" />
+							<img src={playlist.images[0].url} width="200" height="200" alt="Playlist" />
 						</Grid>
 						: <Grid item xs={12} md={4} lg={3} className={classes.defaultMusicIcon}>
 							<FontAwesomeIcon icon={faMusic} size="4x"/>
 						</Grid>
 					}
 					<Grid item xs={12} md={8} lg={9}>
-						<Typography variant="body1">{selectedInfo.type}</Typography>
-						<Typography variant="h3">{selectedInfo.name}</Typography>
+						<Typography variant="body1">{type}</Typography>
+						<Typography variant="h3">{playlist.name}</Typography>
 						<Grid item xs={12}>
-							<Typography variant="body1">{selectedInfo.owner.display_name}</Typography>
+							<Typography variant="body1">{playlist.owner.display_name}</Typography>
 						</Grid>
 						<Grid item xs={12}>
-							<Typography variant="body1">{selectedInfo.tracks.total} songs • {formatTotalTimePlaylist()}</Typography>
+							<Typography variant="body1">{playlist.tracks.total} songs • {formatTotalTimePlaylist(content)}</Typography>
 						</Grid>
 					</Grid>
-					{tracks.map((item) => {
+					{content.map((item) => {
 						return (
 							<Fragment key={item.track.id}>
 								<Grid item xs={10} md={11}>

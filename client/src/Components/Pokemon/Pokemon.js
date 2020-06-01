@@ -8,7 +8,7 @@ import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import ScrollTop from "../shared/ScrollTop";
 import PokemonCard from "./PokemonCard";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
 	root: {
 		padding: 10
 	},
@@ -25,7 +25,6 @@ const Pokemon = () => {
 	const classes = useStyles();
 
 	const [ currentUrl, setCurrentUrl ] = useState("https://pokeapi.co/api/v2/pokemon");
-
 	const { isLoading, pokemon, nextUrl } = useGetPokemon(currentUrl);
 
 	const observer = useRef();

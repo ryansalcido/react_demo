@@ -6,6 +6,7 @@ import TabPanel from "./shared/TabPanel";
 import Weather from "./Weather/Weather";
 import Spotify from "./Spotify/Spotify";
 import Pokemon from "./Pokemon/Pokemon";
+import SpotifyProvider from "../Context/SpotifyContext";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const Dashboard = () => {
@@ -32,7 +33,9 @@ const Dashboard = () => {
 					<Weather />
 				</TabPanel>
 				<TabPanel value={value} index={2}>
-					<Spotify />
+					<SpotifyProvider>
+						<Spotify />
+					</SpotifyProvider>
 				</TabPanel>
 				<TabPanel value={value} index={3}>
 					<Pokemon />

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
@@ -51,10 +51,12 @@ const Login = () => {
 		}).catch(error => {
 			toast.error("Invalid username or password");
 			setForm({email: "", password: ""});
+			emailInputRef.current.focus();
 		});
 	};
 
 	const history = useHistory();
+	const emailInputRef = useRef();
 	const { manageUserSession } = useContext(AuthContext);
 	const [ form, setForm, handleChange, handleSubmit ] = 
 		useForm({email: "", password: "", showPassword: false}, loginUser);
@@ -74,7 +76,7 @@ const Login = () => {
 						<Grid item xs={11} sm={7} md={5} lg={3}>
 							<TextField value={form.email} variant="outlined" fullWidth autoFocus required 
 								id="email" label="Email address" name="email" autoComplete="email" 
-								onChange={handleChange} 
+								onChange={handleChange} inputRef={emailInputRef}
 								InputProps={{ endAdornment: (
 									<InputAdornment position="end">
 										<IconButton edge="end" onClick={() => setForm(form => ({...form, email: ""}))}>

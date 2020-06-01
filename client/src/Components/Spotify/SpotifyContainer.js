@@ -7,7 +7,7 @@ import SpotifyContentView from "./SpotifyContentView";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		minHeight: 450
+		height: 450
 	},
 	explorerView: {
 		borderRight: `1px solid ${theme.palette.divider}`
@@ -19,7 +19,7 @@ const SpotifyContainer = () => {
 
 	return (
 		<Paper elevation={4} className={classes.root}>
-			<Grid container>
+			<Grid container style={{height: "inherit"}}>
 				<Grid item xs={4} sm={3} md={2} className={classes.explorerView}>
 					<SpotifyExplorer />
 				</Grid>

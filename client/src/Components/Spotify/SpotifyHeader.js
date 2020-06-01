@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useSelector } from "react-redux";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
+import { SpotifyContext } from "../../Context/SpotifyContext"; 
 
 const useStyles = makeStyles((theme) => ({
 	spotifyHeader: {
@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 
 const SpotifyHeader = () => {
 	const classes = useStyles();
-	const profile = useSelector(state => state.profile);
+	const { profile } = useContext(SpotifyContext);
 
 	return (
 		<div className={classes.spotifyHeader}>

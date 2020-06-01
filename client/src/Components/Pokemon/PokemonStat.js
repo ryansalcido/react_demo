@@ -6,26 +6,26 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Typography from "@material-ui/core/Typography";
 import { toProperCase } from "../../utils/StringUtils";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
 	statProgressBar: {
 		height: 14,
 		borderRadius: 4
 	}
 }));
 
+const abbreviateStatName = (name) => {
+	if(name === "special-defense") {
+		return "Sp. Def";
+	} else if(name === "special-attack") {
+		return "Sp. Atk";
+	} else {
+		return toProperCase(name);
+	}
+};
+
 const PokemonStat = (props) => {
 	const { stats } = props;
 	const classes = useStyles();
-
-	const abbreviateStatName = (name) => {
-		if(name === "special-defense") {
-			return "Sp. Def";
-		} else if(name === "special-attack") {
-			return "Sp. Atk";
-		} else {
-			return toProperCase(name);
-		}
-	};
 
 	return (
 		<Fragment>
@@ -53,4 +53,4 @@ PokemonStat.propTypes = {
 	stats: PropTypes.array.isRequired
 };
 
-export default PokemonStat;
+export default React.memo(PokemonStat);

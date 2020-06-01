@@ -30,6 +30,26 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 
+const formatPokemonName = (name) => {
+	let normalized = name;
+	if(name.slice(-2) === "-f") {
+		normalized = name.replace(/-f$/, "♀");
+	} else if(name.slice(-2) === "-m") {
+		normalized = name.replace(/-m$/, "♂");
+	}
+	return toProperCase(normalized);
+};
+
+const formatPokemonNumber = (number) => {
+	if(number < 10) {
+		return `00${number}`;
+	} else if(number < 100) {
+		return `0${number}`;
+	} else {
+		return number;
+	}
+};
+
 const PokemonCard = (props) => {
 	const { pokemon } = props;
 	const [ species, setSpecies ] = useState({});
@@ -46,26 +66,6 @@ const PokemonCard = (props) => {
 		});
 		return () => source.cancel();
 	}, [pokemon.species.url]);
-
-	const formatPokemonName = (name) => {
-		let normalized = name;
-		if(name.slice(-2) === "-f") {
-			normalized = name.replace(/-f$/, "♀");
-		} else if(name.slice(-2) === "-m") {
-			normalized = name.replace(/-m$/, "♂");
-		}
-		return toProperCase(normalized);
-	};
-
-	const formatPokemonNumber = (number) => {
-		if(number < 10) {
-			return `00${number}`;
-		} else if(number < 100) {
-			return `0${number}`;
-		} else {
-			return number;
-		}
-	};
 
 	return (
 		<Paper elevation={4} className={classes.root}>
@@ -108,4 +108,4 @@ PokemonCard.propTypes = {
 	pokemon: PropTypes.object.isRequired
 };
 
-export default PokemonCard;
+export default React.memo(PokemonCard);

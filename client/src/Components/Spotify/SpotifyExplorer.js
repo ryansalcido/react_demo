@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { useSelector, useDispatch } from "react-redux";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -9,6 +8,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import ListIcon from "@material-ui/icons/List";
 import LibraryMusicIcon from "@material-ui/icons/LibraryMusic";
 import Grid from "@material-ui/core/Grid";
+import { SpotifyContext } from "../../Context/SpotifyContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpotify } from "@fortawesome/free-brands-svg-icons";
 import Typography from "@material-ui/core/Typography";
@@ -36,72 +36,69 @@ const useStyles = makeStyles((theme) => ({
 
 const SpotifyExplorer = () => {
 	const classes = useStyles();
-	
-	const playlists = useSelector(state => state.playlists);
-	const profile = useSelector(state => state.profile);
-	const dispatch = useDispatch();
+
+	const { profile, playlists, setPlaylists, setViewInfo, setIsLoading, setError } = useContext(SpotifyContext);
 
 	useEffect(() => {
 		let source = axios.CancelToken.source();
 		axios.get("/spotify/playlists", {cancelToken: source.token}).then(res => {
 			const { playlists } = res.data;
-			dispatch({playlists, type: "SET_PLAYLISTS"});
+			setPlaylists(playlists);
 		}).catch(error => {
-			dispatch({playlists: [], type: "SET_PLAYLISTS"});
+			setPlaylists(null);
 		});
 
 		return () => source.cancel();
-	}, [dispatch]);
+	}, [setPlaylists]);
 
 	const getTracksByPlaylist = (playlist) => {
-		dispatch({isLoading: true, type: "SET_IS_LOADING"});
-		dispatch({albums: [], type: "SET_ALBUMS"});
+		setIsLoading(true);
 		axios.get(`/spotify/playlist/${playlist.id}`).then(res => {
 			const { tracks } = res.data;
-			playlist.type = "PLAYLIST";
-			dispatch({tracks, type: "SET_TRACKS"});
-			dispatch({selectedInfo: playlist, type: "SET_SELECTED_INFO"});
-			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+			setError(null);
+			setViewInfo({playlist, type: "PLAYLIST", content: tracks});
+			setIsLoading(false);
 		}).catch(error => {
-			dispatch({tracks: [], type: "SET_TRACKS"});
-			dispatch({selectedInfo: null, type: "SET_SELECTED_INFO"});
-			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+			setError(error);
+			setViewInfo(null);
+			setIsLoading(false);
 		});
 	};
 
 	const getSavedTracks = () => {
-		dispatch({isLoading: true, type: "SET_IS_LOADING"});
-		dispatch({albums: [], type: "SET_ALBUMS"});
+		setIsLoading(true);
 		axios.get("/spotify/savedTracks").then(res => {
 			const { savedTracks } = res.data;
-			dispatch({tracks: savedTracks, type: "SET_TRACKS"});
-			dispatch({
-				selectedInfo: {
+			setError(null);
+			setViewInfo({
+				type: "PLAYLIST",
+				content: savedTracks,
+				playlist: {
 					images: [{url: "https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png"}],
 					name: "Liked Songs",
-					type: "PLAYLIST",
 					owner: { display_name: profile.display_name },
 					tracks: { total: savedTracks.length }
-				}, 
-				type: "SET_SELECTED_INFO"
+				}
 			});
-			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+			setIsLoading(false);
 		}).catch(error => {
-			dispatch({tracks: [], type: "SET_TRACKS"});
-			dispatch({selectedInfo: null, type: "SET_SELECTED_INFO"});
-			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+			setError(error);
+			setViewInfo(null);
+			setIsLoading(false);
 		});
 	};
 
 	const getSavedAlbums = () => {
-		dispatch({isLoading: true, type: "SET_IS_LOADING"});
+		setIsLoading(true);
 		axios.get("/spotify/savedAlbums").then(res => {
 			const { savedAlbums } = res.data;
-			dispatch({albums: savedAlbums.items, type: "SET_ALBUMS"});
-			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+			setError(null);
+			setViewInfo({albums: savedAlbums.items, type: "ALBUM"});
+			setIsLoading(false);
 		}).catch(error => {
-			dispatch({albums: [], type: "SET_ALBUMS"});
-			dispatch({isLoading: false, type: "SET_IS_LOADING"});
+			setError(error);
+			setViewInfo(null);
+			setIsLoading(false);
 		});
 	};
 
@@ -143,7 +140,7 @@ const SpotifyExplorer = () => {
 					<ListItemIcon className={classes.explorePanelIcon}><ListIcon /></ListItemIcon>
 					<ListItemText classes={{primary: classes.explorerButtonText}} primary="PLAYLISTS" />
 				</ListItem>
-				{playlists.map((playlist) => {
+				{playlists && playlists.map((playlist) => {
 					return (
 						<ListItem button dense key={playlist.id}>
 							<ListItemText classes={{primary: classes.explorerButtonText}}

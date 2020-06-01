@@ -1,11 +1,10 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpotify } from "@fortawesome/free-brands-svg-icons";
 import SpotifyContainer from "./SpotifyContainer";
-import { useDispatch } from "react-redux";
-import axios from "axios";
+import { SpotifyContext } from "../../Context/SpotifyContext";
 
 const useStyles = makeStyles((theme) => ({
 	spotifyButton: {
@@ -22,27 +21,11 @@ const Spotify = () => {
 		? process.env.REACT_APP_SPOTIFY_LOGIN_PROD : process.env.REACT_APP_SPOTIFY_LOGIN_DEV;
 	
 	const classes = useStyles();
-	const [ isSpotifyAuth, setIsSpotifyAuth ] = useState(false);
-
-	const dispatch = useDispatch();
-
-	useEffect(() => {
-		let source = axios.CancelToken.source();
-		axios.get("/spotify/profile", {cancelToken: source.token}).then(res => {
-			const { profile } = res.data;
-			setIsSpotifyAuth(true);
-			dispatch({profile, type: "SET_PROFILE"});
-		}).catch(error => {
-			setIsSpotifyAuth(false);
-			dispatch({profile: {}, type: "SET_PROFILE"});
-		});
-
-		return () => source.cancel();
-	}, [dispatch]);
+	const { profile } = useContext(SpotifyContext);
 
 	return (
 		<Fragment>
-			{isSpotifyAuth 
+			{profile !== null 
 				? <SpotifyContainer />
 				: <Button href={SPOTIFY_LOGIN_REDIRECT_URL} variant="contained" className={classes.spotifyButton}
 					startIcon={<FontAwesomeIcon icon={faSpotify} />}>
