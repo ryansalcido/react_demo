@@ -8,7 +8,7 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import PropTypes from "prop-types";
 import { AuthContext } from "../../Context/AuthContext";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,7 +33,7 @@ const TodoEditDialog = (props) => {
 	const updateTodo = () => {
 		setOpenEditDialog(false); 
 		setIsLoading(true);
-		axios.post("/user/updateTodo", {_id: todo._id, name: newTodoName}).then(res => {
+		axiosInstance.post("user/updateTodo", {_id: todo._id, name: newTodoName}).then(res => {
 			const { isAuthenticated, todos } = res.data;
 			if(isAuthenticated && todos) {
 				setNewTodoName("");

@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpotify } from "@fortawesome/free-brands-svg-icons";
 import Typography from "@material-ui/core/Typography";
 import Hidden from "@material-ui/core/Hidden";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 
 const useStyles = makeStyles((theme) => ({
 	explorerRoot: {
@@ -40,8 +40,8 @@ const SpotifyExplorer = () => {
 	const { profile, playlists, setPlaylists, setViewInfo, setIsLoading, setError } = useContext(SpotifyContext);
 
 	useEffect(() => {
-		let source = axios.CancelToken.source();
-		axios.get("/spotify/playlists", {cancelToken: source.token}).then(res => {
+		let source = axiosInstance.CancelToken.source();
+		axiosInstance.get("spotify/playlists", {cancelToken: source.token}).then(res => {
 			const { playlists } = res.data;
 			setPlaylists(playlists);
 		}).catch(error => {
@@ -53,7 +53,7 @@ const SpotifyExplorer = () => {
 
 	const getTracksByPlaylist = (playlist) => {
 		setIsLoading(true);
-		axios.get(`/spotify/playlist/${playlist.id}`).then(res => {
+		axiosInstance.get(`spotify/playlist/${playlist.id}`).then(res => {
 			const { tracks } = res.data;
 			setError(null);
 			setViewInfo({playlist, type: "PLAYLIST", content: tracks});
@@ -67,7 +67,7 @@ const SpotifyExplorer = () => {
 
 	const getSavedTracks = () => {
 		setIsLoading(true);
-		axios.get("/spotify/savedTracks").then(res => {
+		axiosInstance.get("spotify/savedTracks").then(res => {
 			const { savedTracks } = res.data;
 			setError(null);
 			setViewInfo({
@@ -90,7 +90,7 @@ const SpotifyExplorer = () => {
 
 	const getSavedAlbums = () => {
 		setIsLoading(true);
-		axios.get("/spotify/savedAlbums").then(res => {
+		axiosInstance.get("spotify/savedAlbums").then(res => {
 			const { savedAlbums } = res.data;
 			setError(null);
 			setViewInfo({albums: savedAlbums.items, type: "ALBUM"});

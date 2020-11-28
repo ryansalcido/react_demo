@@ -6,7 +6,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { toast } from "react-toastify";
 import clsx from "clsx";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { useForm, validateEmail, validateName } from "../../hooks/useForm";
 
 const useStyles = makeStyles((theme) => ({
@@ -24,7 +24,7 @@ const EditBasicInfo = () => {
 	const updateProfile = () => {
 		const { name, email} = form;
 		if(errors.name.msgError === false && errors.email.msgError === false && isProfileFormValid()) {
-			axios.post("/user/updateProfile", {email, name: name.trim()}).then(res => {
+			axiosInstance.post("user/updateProfile", {email, name: name.trim()}).then(res => {
 				const { user, isAuthenticated, message } = res.data;
 				if(isAuthenticated && user) {
 					manageUserSession(user, isAuthenticated);

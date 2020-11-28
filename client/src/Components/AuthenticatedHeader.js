@@ -12,7 +12,7 @@ import Divider from "@material-ui/core/Divider";
 import Menu from "@material-ui/core/Menu";
 import { AuthContext } from "../Context/AuthContext";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { getUserInitials } from "../utils/StringUtils";
 
 const useStyles = makeStyles((theme) => ({
@@ -43,7 +43,7 @@ const AuthenticatedHeader = () => {
 
 	const onClickLogoutHandler = () => {
 		handleClose();
-		axios.get("/user/logout").then(res => {
+		axiosInstance.get("user/logout").then(res => {
 			const { user, success } = res.data;
 			if(user && success) {
 				manageUserSession(user, false);

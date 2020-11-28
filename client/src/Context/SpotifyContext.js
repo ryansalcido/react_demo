@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
 export const SpotifyContext = createContext();
@@ -13,8 +13,8 @@ const SpotifyProvider = ({ children }) => {
 	const [ error, setError ] = useState(null);
 
 	useEffect(() => {
-		let source = axios.CancelToken.source();
-		axios.get("/spotify/profile", {cancelToken: source.token}).then(res => {
+		let source = axiosInstance.CancelToken.source();
+		axiosInstance.get("spotify/profile", {cancelToken: source.token}).then(res => {
 			const { profile } = res.data;
 			setProfile(profile);
 		}).catch(error => {

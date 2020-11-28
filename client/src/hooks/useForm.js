@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 
 export const useForm = (initState, callback) => {
 	const [ state, setState ] = useState(initState);
@@ -27,7 +27,7 @@ export const validateEmail = (email) => {
 	return new Promise((resolve, reject) => {
 		const normalized = email.trim().toLowerCase();
 		if(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(normalized)) {
-			axios.post("/user/validateEmail", {email: normalized}).then(res => {
+			axiosInstance.post("user/validateEmail", {email: normalized}).then(res => {
 				resolve({msgBody: "", msgError: false });
 			}).catch(error => {
 				const { data } = error && error.response;

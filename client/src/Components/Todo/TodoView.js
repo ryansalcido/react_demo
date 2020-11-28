@@ -12,7 +12,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import { AuthContext } from "../../Context/AuthContext";
 import Todo from "./Todo";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
@@ -53,10 +53,8 @@ const TodoView = () => {
 
 	useEffect(() => {
 		setIsLoading(true);
-		let source = axios.CancelToken.source();
-		axios.get("/user/todos", 
-			{cancelToken: source.token, headers: {"pragma": "no-cache", "cache-control": "no-cache"}}
-		).then(res => {
+		let source = axiosInstance.CancelToken.source();
+		axiosInstance.get("user/todos", {cancelToken: source.token}).then(res => {
 			const { isAuthenticated, todos } = res.data;
 			if(isAuthenticated && todos) {
 				setTodoList(todos);
@@ -76,7 +74,7 @@ const TodoView = () => {
 	const createTodo = (e) => {
 		e.preventDefault();
 		setIsLoading(true);
-		axios.post("/user/todo", {name: todo}).then(res => {
+		axiosInstance.post("user/todo", {name: todo}).then(res => {
 			const { isAuthenticated, todos } = res.data;
 			if(isAuthenticated && todos) {
 				setTodo("");
