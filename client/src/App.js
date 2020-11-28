@@ -24,7 +24,7 @@ const App = () => {
 	return (
 		<ThemeProvider theme={themeConfig}>
 			<CssBaseline />
-			<Router>
+			<Router basename={process.env.PUBLIC_URL}>
 				<Header themeType={themeConfig.palette.type} toggleDarkTheme={toggleDarkTheme} />
 				<div style={{minHeight: "calc(100vh - 75px)", paddingBottom: 40}}>
 					<Switch>

@@ -4,7 +4,7 @@ import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import NASA from "./NASA";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 
 const useStyles = makeStyles((theme) => ({
 	homeRoot: {
@@ -19,14 +19,16 @@ const Home = () => {
 
 	useEffect(() => {
 		setIsLoading(true);
-		let source = axios.CancelToken.source();
-		axios.get("/nasa/apod", {cancelToken: source.token}).then(res => {
+		let source = axiosInstance.CancelToken.source();
+		axiosInstance.get("nasa/apod", {cancelToken: source.token}).then(res => {
 			const { nasa } = res.data;
 			setNasaResult(nasa);
 			setIsLoading(false);
 		}).catch(error => {
-			setNasaResult(null);
-			setIsLoading(false);
+			if(!axiosInstance.isCancel(error)) {
+				setNasaResult(null);
+			  setIsLoading(false);
+			}
 		});
 
 		return () => source.cancel();

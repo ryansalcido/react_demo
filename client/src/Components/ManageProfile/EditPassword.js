@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { AuthContext } from "../../Context/AuthContext";
 import clsx from "clsx";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-toastify";
 import { useForm } from "../../hooks/useForm";
 
@@ -29,7 +29,7 @@ const EditPassword = () => {
 	const changePassword = () => {
 		if(isFormValid()) {
 			const { originalPassword, newPassword } = form;
-			axios.post("/user/changePassword", {originalPassword, newPassword}).then(res => {
+			axiosInstance.post("user/changePassword", {originalPassword, newPassword}).then(res => {
 				const { message } = res.data;
 				setMessage(message);
 				setForm({originalPassword: "", newPassword: "", showPassword: false});

@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -29,7 +29,8 @@ const AuthProvider = ({ children }) => {
 	const [ isLoaded, setIsLoaded ] = useState(false);
 
 	useEffect(() => {
-		axios.get("/user/authenticated", {headers: {"pragma": "no-cache", "cache-control": "no-cache"}}).then(res => {
+		let source = axiosInstance.CancelToken.source();
+		axiosInstance.get("user/authenticated", {cancelToken: source.token}).then(res => {
 			const { user, isAuthenticated } = res.data;
 			if(user && isAuthenticated) {
 				setUser(user);
@@ -41,6 +42,8 @@ const AuthProvider = ({ children }) => {
 			setIsAuthenticated(false);
 			setIsLoaded(true);
 		});
+    
+		return () => source.cancel();
 	}, []);
 
 	const manageUserSession = useCallback((user, isAuthenticated) => {

@@ -9,7 +9,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import IconButton from "@material-ui/core/IconButton";
 import { AuthContext } from "../../Context/AuthContext";
 import TodoEditDialog from "./TodoEditDialog";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +29,7 @@ const Todo = (props) => {
 	const deleteTodo = (myTodo) => {
 		setIsLoading(true);
 		const { _id } = myTodo;
-		axios.post("/user/deleteTodo", {_id}).then(res => {
+		axiosInstance.post("user/deleteTodo", {_id}).then(res => {
 			const { isAuthenticated, todos } = res.data;
 			if(isAuthenticated && todos) {
 				setTodoList(todos);

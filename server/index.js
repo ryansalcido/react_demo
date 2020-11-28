@@ -2,10 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const userRouter = require("./routes/user");
-const weatherRouter = require("./routes/weather");
-const spotifyRouter = require("./routes/spotify");
-const nasaRouter = require("./routes/nasa");
+const rootRouter = require("./routes");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 
@@ -25,13 +22,10 @@ db.once("open", () => console.log("Connected to database"));
 
 app.use(express.json());
 
-app.use("/user", userRouter);
-app.use("/weather", weatherRouter);
-app.use("/spotify", spotifyRouter);
-app.use("/nasa", nasaRouter);
+app.use("/react-demo/api", rootRouter);
 
 const publicPath = path.join(__dirname, "build");
-app.use(express.static(publicPath));
-app.use("*", express.static(publicPath));
+app.use("/react-demo/", express.static(publicPath));
+app.use("/react-demo/*", express.static(publicPath));
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

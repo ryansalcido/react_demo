@@ -16,7 +16,7 @@ import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { useForm } from "../hooks/useForm";
 
 const useStyles = makeStyles((theme) => ({
@@ -41,7 +41,7 @@ const Login = () => {
 
 	const loginUser = () => {
 		const { email, password } = form;
-		axios.post("/user/login", {email, password}).then(res => {
+		axiosInstance.post("user/login", {email, password}).then(res => {
 			const { isAuthenticated, user } = res.data;
 			if(isAuthenticated) {
 				manageUserSession(user, isAuthenticated);

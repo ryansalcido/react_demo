@@ -16,7 +16,7 @@ import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { useForm, validateEmail, validateName } from "../hooks/useForm";
 
 const useStyles = makeStyles((theme) => ({
@@ -40,7 +40,7 @@ const Register = () => {
 	const registerUser = () => {
 		if(isFormValid) {
 			const { name, email, password } = form;
-			axios.post("/user/register", {name, email, password}).then(res => {
+			axiosInstance.post("user/register", {name, email, password}).then(res => {
 				const { message } = res.data;
 				if(message && message.msgError === false) {
 					toast.success("Successfully created account");

@@ -13,7 +13,7 @@ import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import { AuthContext } from "../../Context/AuthContext";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { createWeatherList } from "./helpers";
 
@@ -62,8 +62,8 @@ const Weather = () => {
 
 	const getWeatherInfo = (e) => {
 		e.preventDefault();
-		cancelSourceRef.current = axios.CancelToken.source();
-		axios.post("/weather/forecast", {location}, {cancelToken: cancelSourceRef.current.token}).then(res => {
+		cancelSourceRef.current = axiosInstance.CancelToken.source();
+		axiosInstance.post("weather/forecast", {location}, {cancelToken: cancelSourceRef.current.token}).then(res => {
 			const { weatherForecast, location } = res.data;
 			if(weatherForecast && location) {
 				setMessage({msgBody: "", msgError: false});
