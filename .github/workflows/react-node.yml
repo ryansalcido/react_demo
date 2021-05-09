@@ -1,0 +1,64 @@
+name: React and Node.js CI
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 12.x ]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install client dependencies
+      run: |
+        cd client/
+        npm install
+
+    - name: Add environment configurations
+      run: |
+        echo '${{ secrets.REACT_ENV_FILE }}' > client/.env
+        echo '${{ secrets.NODE_ENV_FILE }}' > server/.env
+
+    - name: Build client
+      run: |
+        cd client/
+        npm run build
+        npm run post-build
+
+    - name: Install Node dependencies
+      run: |
+        cd server/
+        npm install
+
+    - name: Deploy to Production
+      uses: easingthemes/ssh-deploy@v2
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
+        REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
+        REMOTE_USER: ${{ secrets.DEPLOY_USER }}
+        SOURCE: "server/"
+        TARGET: ${{ secrets.DEPLOY_TARGET }}
+
+    - name: Run deployed code via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        script: |
+          cd ${{ secrets.DEPLOY_TARGET }}
+          pm2 stop --silent react_demo
+          pm2 delete --silent react_demo
+          pm2 start index.js --name react_demo
