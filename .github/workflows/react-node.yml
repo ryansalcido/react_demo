@@ -1,6 +1,8 @@
 name: React and Node.js CI
 
 on:
+  pull_request:
+    branches: [ master ]
   push:
     branches: [ develop ]
 
