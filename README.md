@@ -1,6 +1,6 @@
 # Spotify, Weather, To-Do, and Pokemon Web App
 
-https://rmsdevelopmentprojects.com/react-demo/
+https://ryansalcido.com/react-demo/
 
 An application used to:
 - view and edit To-Do list
