@@ -1,5 +1,7 @@
 # Spotify, Weather, To-Do, and Pokemon Web App
 
+![example workflow](https://github.com/ryansalcido/react_demo/actions/workflows/deploy-production.yml/badge.svg)
+
 https://ryansalcido.com/react-demo/
 
 An application used to:
