@@ -1,0 +1,7 @@
+.git
+client/node_modules
+client/.gitignore
+client/.eslintrc.js
+server/node_modules
+server/.gitignore
+server/.eslintrc.js

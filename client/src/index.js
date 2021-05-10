@@ -1,31 +1,10 @@
+import "react-app-polyfill/ie11";
+import "intersection-observer";
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
-import Signup from "./Components/Signup/Signup";
-import Login from "./Components/Login/Login";
-import * as serviceWorker from "./serviceWorker";
-import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import AuthProvider from "./Context/AuthContext";
+import "typeface-roboto";
 
-const routing = (
-  <Router>
-    <Switch>
-      <Route exact path="/" component={App} />
-      <Route path="/signup" component={Signup} />
-      <Route path="/login" component={Login} />
-    </Switch>
-  </Router>
-)
-ReactDOM.render(routing, document.getElementById("root"))
-
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>,
-//   document.getElementById("root")
-// );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+ReactDOM.render(<AuthProvider><App /></AuthProvider>, document.getElementById("root"));
